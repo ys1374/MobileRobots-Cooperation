@@ -127,11 +127,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="bin.cpp" />
+    <ClCompile Include="AStar.cpp" />
     <ClCompile Include="mScThesis.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="bin.h" />
+    <ClInclude Include="Autostore.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

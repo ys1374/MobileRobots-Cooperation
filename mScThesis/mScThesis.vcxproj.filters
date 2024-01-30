@@ -18,12 +18,12 @@
     <ClCompile Include="mScThesis.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="bin.cpp">
+    <ClCompile Include="AStar.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="bin.h">
+    <ClInclude Include="Autostore.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
