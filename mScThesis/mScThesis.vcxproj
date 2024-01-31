@@ -127,7 +127,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="AStar.cpp" />
+    <ClCompile Include="aStarFunctions.cpp" />
+    <ClCompile Include="functions.cpp" />
     <ClCompile Include="mScThesis.cpp" />
   </ItemGroup>
   <ItemGroup>
