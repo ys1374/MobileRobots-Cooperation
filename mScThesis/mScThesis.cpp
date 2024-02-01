@@ -13,7 +13,7 @@ int numOfAvailableFirstRobots{ numOfFirstRobots };
 const unsigned int numOfSecondRobots{ 3 };
 int numOfAvailableSecondRobots{ numOfSecondRobots };
 
-std::vector<int> queueOfBinRetrival{};
+//std::vector<int> queueOfBinRetrival{};
 std::vector<int> binsOnRetrival{};
 std::vector<int> queueOfBinStorage{};
 
@@ -130,16 +130,42 @@ int main()
 		}
 	}
 
-	std::cout << "Warehouse all set!\t";
+	std::cout << "Objects on Warehouse all set!\n";
+
+
+	//make a Queue for retrival from shufling the binsVector
+	// 
+	// Create an instance of VectorShuffler for Autostore::bin type
+	Autostore::VectorShuffler<Autostore::bin> shuffler;
+
+	// Shuffle the binsVector
+	std::vector<Autostore::bin> queueOfBinRetrival = shuffler.shuffleVector(binsVector);
+
+
+	//std::vector<Autostore::bin> binsVector;// Vector of class objects
+	//Autostore::bin binsObject;
+
+
+
+
+
+
+
+
 
 
 
 	//the evaluation of warehouse throughput
 	while (!queueOfBinRetrival.empty())
 	{
-		std::cout << "Retrival On Board!";
-	}
-	std::cout << "Empty Retrival Queue!";
+		std::cout << "Retrival On Board!\n";
+		//for (const auto& bin : queueOfBinRetrival) {
+		//    std::cout << bin.binName << "\t" << bin.locationName << "\n";
+		//}
 
+		break;
+	}
+	std::cout << "Empty Retrival Queue!\n";
+	std::cout << queueOfBinRetrival[0].binName << "\t" << queueOfBinRetrival[0].locationName << "\n";
 }
 

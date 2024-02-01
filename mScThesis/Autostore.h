@@ -1,10 +1,13 @@
-#ifndef __Autostore_neo_yasinsalehi_ir_8F637DB91972F6C878D41D63F7E7214F__
-#define __Autostore_neo_yasinsalehi_ir_8F637DB91972F6C878D41D63F7E7214F__
+#ifndef __Autostore_neo___yasinsalehi_ir_8F637DB91972F6C878D41D63F7E7214F__
+#define __Autostore_neo___yasinsalehi_ir_8F637DB91972F6C878D41D63F7E7214F__
 
 #include <string>
 #include <iostream>
 #include <random>
 #include <set>
+#include <algorithm> // For std::shuffle
+#include <random> // For std::default_random_engine
+#include <chrono> // For std::chrono::system_clock
 
 namespace Autostore {
 	class gridLocation
@@ -55,7 +58,7 @@ namespace Autostore {
 
 		long long int locationId{ -1 };
 
-		int binId{ -1 };
+		long long int binId{ -1 };
 
 		std::string binName{ "namenotassigned!" };
 		std::string locationName{ "namenotassigned!" };
@@ -147,9 +150,25 @@ namespace Autostore {
 		}
 	};
 
+	template <typename T>
+	class VectorShuffler {
+	public:
+		// Function to shuffle a given vector
+		std::vector<T> shuffleVector(const std::vector<T>& inputVector) {
+			// Copy the input vector
+			std::vector<T> outputVector = inputVector;
 
+			// Obtain a time-based seed
+			long long unsigned int seed = std::chrono::system_clock::now().time_since_epoch().count();
+	
+			// Shuffle the copy randomly
+			std::shuffle(outputVector.begin(), outputVector.end(), std::default_random_engine(seed));
+
+			return outputVector;
+		}
+	};
 
 }
-#endif
+#endif 
 
 
