@@ -7,9 +7,9 @@
 
 
 
-const unsigned int xLenghOfWarehouse{ 20 }; //x direction of gird
-const unsigned int yLenghOfWarehouse{ 20 }; //y direction of gird
-const unsigned int zLenghOfWarehouse{ 20 }; //max num of bins in a column
+const unsigned int xLenghOfWarehouse{ 5 }; //max x size of gird
+const unsigned int yLenghOfWarehouse{ 5 }; //max y size of gird
+const unsigned int zLenghOfWarehouse{ 5 }; //max num of bins in a column
 
 const unsigned int numOfFirstRobots{ 3 };
 int numOfAvailableFirstRobots{ numOfFirstRobots };
@@ -25,9 +25,14 @@ std::vector<int> queueOfBinStorage{};
 const unsigned int filledPercentOfWarehouse{ 50 }; //in %
 
 long long int locationId{ 0 };
+long long int retrivalTaskId{ 0 };
 
 unsigned int maxNumOfBins{ xLenghOfWarehouse * yLenghOfWarehouse * zLenghOfWarehouse * filledPercentOfWarehouse / 100 };
 
+
+//functions-----------------------
+
+//--------------------------------
 
 
 
@@ -40,16 +45,15 @@ int main()
 	Autostore::firstRobot firstRobotObject;
 
 	for (int i = 0; i < numOfFirstRobots; i++) {
-		// getting the random values from 
-		// functions 
 		firstRobotObject.nameFillerFirstRobot(i);
 		// inserting objects to vector 
 		firstRobotsVector.push_back(firstRobotObject);
 
 		//std::cout << firstRobotsVector[i].id << "\t" << firstRobotsVector[i].name << "\n";
 	}
+	//------------------------------------------
 
-	//second robot-----------------------
+	//second robot------------------------------
 	std::vector<Autostore::secondRobot> secondRobotsVector;// Vector of class objects
 	Autostore::secondRobot secondRobotObject;
 
@@ -61,8 +65,9 @@ int main()
 
 		//std::cout << secondRobotsVector[i].id << "\t" << secondRobotsVector[i].name << "\n";
 	}
+	//------------------------------------------
 
-	//bins--------------------------------
+	//bins--------------------------------------
 	std::vector<Autostore::bin> binsVector;// Vector of class objects
 	Autostore::bin binsObject;
 
@@ -72,9 +77,10 @@ int main()
 	//	binsVector.push_back(binsObject);
 	//	//std::cout << binsVector[i].id << "\t" << binsVector[i].binName << "\n";
 	//}
+	//------------------------------------------
 
 
-	//creating gridbins location on grid---------------	
+	//creating gridbins location on grid--------
 	std::vector<std::vector<std::vector<Autostore::gridLocation>>> gridLocationVector(
 		xLenghOfWarehouse,
 		std::vector<std::vector<Autostore::gridLocation>>(
@@ -88,15 +94,56 @@ int main()
 	Autostore::gridLocation gridLocationObject;//creating object
 
 
+	//port objects---------------------------------
+	std::vector<Autostore::port> portsVector;// Vector of class objects
+	Autostore::port portObject;
+	//---------------------------------------------
+
+
 	for (int k = 0; k < zLenghOfWarehouse; k++) {
 		for (int j = 0; j < yLenghOfWarehouse; j++) {
 			for (int i = 0; i < xLenghOfWarehouse; i++) {
+
+
 
 				gridLocationVector[i][j][k].gridFillerWithBin(i, j, k, locationId);//filling grid vector
 
 				gridLocationVector[i][j][k].xLocation = i;//filling grid vector features
 				gridLocationVector[i][j][k].yLocation = j;
 				gridLocationVector[i][j][k].zLocation = k;
+
+
+				//ports excluded top grid location for --------
+				if (i== xLenghOfWarehouse/2 &&j== 0) {
+
+					if (k == 0) {
+						portObject.xLocation = i;
+						portObject.yLocation = j;
+
+						portObject.id = 0;
+
+						portsVector.push_back(portObject);
+					}
+
+
+					continue;
+				}
+				if (i == 0 && j == yLenghOfWarehouse / 2)
+				{
+					if (k == 0) {
+						portObject.xLocation = i;
+						portObject.yLocation = j;
+
+						portObject.id = 1;
+
+						portsVector.push_back(portObject);
+					}
+
+
+					continue;
+				}
+
+				//----------------------------------------------
 
 				if (locationId < maxNumOfBins) { //just fill the locations which bins can take according to filledPercentOfWarehouse
 					auto binid = locationId;
@@ -133,14 +180,17 @@ int main()
 
 	std::cout << "Objects on Warehouse all set!\n";
 
+	//------------------------------------------
 
-	//make a Queue for retrival from shufling the binsVector
+
+	//make a Queue for retrival from shufling the binsVector--------
 	// 
 	// Create an instance of VectorShuffler for Autostore::bin type
 	Autostore::VectorShuffler<Autostore::bin> shuffler;
 
 	// Shuffle the binsVector
 	std::vector<Autostore::bin> queueOfBinRetrival = shuffler.shuffleVector(binsVector);
+	//--------------------------------------------------------------
 
 
 	//std::vector<Autostore::bin> binsVector;// Vector of class objects
@@ -150,24 +200,95 @@ int main()
 
 
 
-
-	//queueOfBinRetrival.erase(queueOfBinRetrival.begin()+2 );
-
+	/*size(firstRobotsVector);*/
 
 
+	//for (auto& firstRobot : binsVector) {
+	//	//firstRobot.time = firstRobot.time + cycleTime;
+
+	//	std::cout << firstRobot.locationName <<  "\n";
+	//}
+
+	
+	//double cycleTime(Autostore::bin, Autostore::firstRobot);
 
 
+	std::vector<Autostore::retrivalTask> retrivalTaskVector;// Vector of class objects
+	Autostore::retrivalTask retrivalTaskObject;
+
+	//for (unsigned int i = 0; (i) < (maxNumOfBins); i++) {
+	//	binsObject.binFillerWithdata(i);
+	//	// inserting objects to vector 
+	//	binsVector.push_back(binsObject);
+	//	//std::cout << binsVector[i].id << "\t" << binsVector[i].binName << "\n";
+	//}
+
+	firstRobotsVector[0].xLocation = 3;
+
+	firstRobotsVector[1].xLocation = 2;
+	firstRobotsVector[1].yLocation = 3;
+
+	firstRobotsVector[2].xLocation = 1;
+	firstRobotsVector[2].yLocation = 4;
+
+
+
+	
 	//the evaluation of warehouse throughput
-	while (!queueOfBinRetrival.empty())
-	{
-		std::cout << "Retrival On Board!\n";
-		//for (const auto& bin : queueOfBinRetrival) {
-		//    std::cout << bin.binName << "\t" << bin.locationName << "\n";
+	while (!queueOfBinRetrival.empty())//every time when all robots assigned comes back and checks
+	{	
+		retrivalTaskObject.id = retrivalTaskId;
+
+		retrivalTaskObject.firstRobotSelection(queueOfBinRetrival[0], firstRobotsVector);
+
+		retrivalTaskObject.portSelection(queueOfBinRetrival[0], portsVector);
+		std::cout<< "robot id" << retrivalTaskObject.selectedfirstRobotId << "\trobot id:" << retrivalTaskObject.selectedPortId <<"\n";
+
+		retrivalTaskVector.push_back(retrivalTaskObject);
+		
+		
+		//std::cout << "hii\n";
+		//// for just first robot version of code
+		//for (auto& firstRobot : firstRobotsVector) {
+		//	if (queueOfBinRetrival.empty()) { break; }
+
+		//	retrivalTaskObject.id = retrivalTaskId;
+		//	retrivalTaskObject.robotSelection
+		//	retrivalTaskVector.push_back(retrivalTaskObject);
+
+		//	
+		//	firstRobot.time = firstRobot.time + retrivalTaskObject.cycleTime(queueOfBinRetrival[0], firstRobot);
+
+
+		//	std::cout << firstRobot.name << " " << "time:" << firstRobot.time << "\t" << "retrival task id:" << retrivalTaskObject.id << "\n";
+		//	queueOfBinRetrival.erase(queueOfBinRetrival.begin());
+
+		//	retrivalTaskId++;
 		//}
 
-		break;
+
+
+		//if (queueOfBinRetrival.empty()) { break; }
+		//std::cout << "Retrival On Board!\n";
+
+		//queueOfBinRetrival[0];
+
+
+		//std::cout << binsVector[0].binName << "\t" << queueOfBinRetrival[0].locationName << "\n";
+
+
+
+		
+		queueOfBinRetrival.erase(queueOfBinRetrival.begin());
+
+		//break;
 	}
-	std::cout << "Empty Retrival Queue!\n";
-	std::cout << queueOfBinRetrival[0].binName << "\t" << queueOfBinRetrival[0].locationName << "\n";
+
+	if (queueOfBinRetrival.empty()){std::cout << "Empty Retrival Queue!\n";}
+	else{ std::cout << "Something Wrong!\n"; }
+	
+
+
+	//std::cout << queueOfBinRetrival[0].binName << "\t" << queueOfBinRetrival[0].locationName << "\n";
 }
 
