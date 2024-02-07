@@ -130,7 +130,6 @@
     <ClCompile Include="aStarFunctions.cpp" />
     <ClCompile Include="functions.cpp" />
     <ClCompile Include="mScThesis.cpp" />
-    <ClCompile Include="Source.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Autostore.h" />

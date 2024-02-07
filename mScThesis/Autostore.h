@@ -1,5 +1,5 @@
-#ifndef __Autostore_neo___yasinsalehi_ir_8F637DB91972F6C878D41D63F7E7214F__
-#define __Autostore_neo___yasinsalehi_ir_8F637DB91972F6C878D41D63F7E7214F__
+#ifndef __Autostore_neo__8F637DB91972F6C878D41D63F7E7214F__
+#define __Autostore_neo__8F637DB91972F6C878D41D63F7E7214F__
 
 #include <string>
 #include <iostream>
@@ -10,6 +10,18 @@
 #include <chrono> // For std::chrono::system_clock
 
 namespace Autostore {
+
+	struct constantsAutostore {
+		int y8b{ 9 };
+	};
+
+	struct port {
+		int xLocation{ -1 }; //tol	
+		int yLocation{ -1 }; //arz 
+		
+		int id{ -1 };
+	};
+
 	class gridLocation
 	{
 	public:
@@ -47,8 +59,6 @@ namespace Autostore {
 
 	};
 
-
-
 	class bin {
 	public:
 
@@ -71,8 +81,6 @@ namespace Autostore {
 
 	};
 
-
-
 	class firstRobot
 	{
 
@@ -85,7 +93,9 @@ namespace Autostore {
 		int binId{ 0 };
 		bool isBusy{ false };
 
-		std::string name{ "namenotassigned!" };
+		double time{ 0 };
+
+		std::string name{ "Name Not Assigned!" };
 
 
 
@@ -125,31 +135,6 @@ namespace Autostore {
 
 	};
 
-	class UniqueRandomNumberGenerator {
-	private:
-		std::set<int> generatedNumbers;
-		std::random_device rd;
-		std::mt19937 gen;
-		std::uniform_int_distribution<> distrib;
-		int maxNumber;
-
-	public:
-		UniqueRandomNumberGenerator(int maxNum) : maxNumber(maxNum), gen(rd()), distrib(0, maxNum) {}
-
-		int generate() {
-			if (generatedNumbers.size() == maxNumber) {
-				throw std::runtime_error("All possible numbers have been generated.");
-			}
-
-			while (true) {
-				int num = distrib(gen);
-				if (generatedNumbers.insert(num).second) {
-					return num;
-				}
-			}
-		}
-	};
-
 	template <typename T>
 	class VectorShuffler {
 	public:
@@ -166,6 +151,117 @@ namespace Autostore {
 
 			return outputVector;
 		}
+	};
+
+	class retrivalTask {
+	public:
+		int id{ -1 };
+
+		int portXLocation{ -1 };
+		int portYLocation{ -1 };
+
+		int firstRobotXLocation{ -1 };
+		int firstRobotYLocation{ -1 };
+
+		int binXLocation{ -1 };
+		int binYLocation{ -1 };
+		int binZLocation{ -1 };
+
+		int selectedPortId{ 0 };
+		int selectedfirstRobotId{ 0 };
+
+		
+		int minCostPort{ 1000000000 };
+
+
+
+		void firstRobotSelection( Autostore::bin bin_, std::vector<Autostore::firstRobot> firstRobotVector_) {
+			int minCostRobot{ 100000000 };
+			int Cost_{ 0 };
+
+			for (auto& robot : firstRobotVector_) {
+
+				Cost_ = manhattanCostRobot(bin_, robot);
+				//std::cout << "robot location:" << robot.xLocation <<" "<< robot.yLocation << "\t" << bin_.locationName << "\tCost:" << Cost_ << "\n";
+				if (Cost_ < minCostRobot) {
+					//std::cout << "iam in\n";
+					minCostRobot = Cost_;
+					firstRobotXLocation = robot.xLocation;
+					firstRobotYLocation = robot.yLocation;
+
+					selectedfirstRobotId = robot.id;
+				}
+
+
+			}
+			//std::cout << "selectedRobotId:" << selectedPortId << "\n\n";
+			//std::cout << "firstRobotXLocation:" << firstRobotXLocation << "\tfirstRobotYLocation:" << firstRobotYLocation << "\n";
+
+		}
+
+		void portSelection(Autostore::bin bin_, std::vector<Autostore::port> portVector_) {
+			int minCostRobot{ 100000000 };
+			int Cost_{ 0 };
+
+			for (auto& port : portVector_) {
+
+				Cost_ = manhattanCostPort(bin_, port);
+				//std::cout << "port location:" << port.xLocation << " " << port.yLocation << "\t" << bin_.locationName << "\tCost:" << Cost_ << "\n";
+				if (Cost_ < minCostRobot) {
+					//std::cout << "iam in\n";
+					minCostRobot = Cost_;
+					portXLocation = port.xLocation;
+					portYLocation = port.yLocation;
+
+					selectedPortId = port.id;
+				}
+
+
+			}
+			//std::cout << "selectedRobotId:" << selectedPortId << "\n\n";
+			//std::cout << "firstRobotXLocation:" << firstRobotXLocation << "\tfirstRobotYLocation:" << firstRobotYLocation << "\n";
+
+			//for (auto port : portVector_) {
+
+			//	auto Cost_ = manhattanCostPort(bin_, port);
+			//	if (minCostPort > Cost_) {
+
+			//		minCostPort = Cost_;
+			//		portXLocation = port.xLocation;
+			//		task_.portYLocation = port.yLocation;
+
+			//	}
+
+
+			//}
+			//std::cout << "portXLocation:" << task_.portXLocation << "\tportYLocation" << task_.portYLocation << "\n";
+			//std::cout << "------------------------------------------\n";
+		}
+
+		int manhattanCostRobot(Autostore::bin bin_, Autostore::firstRobot robot_) {
+			return{ abs(bin_.xLocation - robot_.xLocation) + abs(bin_.yLocation - robot_.yLocation) };
+		}
+		int manhattanCostPort(Autostore::bin bin_, Autostore::port port_) {
+			return{ abs(bin_.xLocation - port_.xLocation) + abs(bin_.yLocation - port_.yLocation) };
+		}
+
+		double cycleTime(Autostore::bin bin_, Autostore::firstRobot& robot_) {
+
+			std::cout << "Robot location is:" << robot_.xLocation << " " << robot_.yLocation;
+			std::cout << "\tBin xlocation is:" << bin_.xLocation;
+			std::cout << "\tmanhatan cost is:" << manhattanCostRobot(bin_, robot_) << "\n";
+
+			int mcost = manhattanCostRobot(bin_, robot_);
+			robot_.xLocation = bin_.xLocation;
+			robot_.yLocation = bin_.yLocation;
+
+
+			return mcost;
+		}
+
+
+
+		
 	};
 
 }
