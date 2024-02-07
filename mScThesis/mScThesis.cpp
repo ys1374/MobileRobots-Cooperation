@@ -7,11 +7,11 @@
 
 
 
-const unsigned int xLenghOfWarehouse{ 5 }; //max x size of gird
-const unsigned int yLenghOfWarehouse{ 5 }; //max y size of gird
-const unsigned int zLenghOfWarehouse{ 5 }; //max num of bins in a column
+const unsigned int xLenghOfWarehouse{ 30 }; //max x size of gird
+const unsigned int yLenghOfWarehouse{ 30 }; //max y size of gird
+const unsigned int zLenghOfWarehouse{ 20 }; //max num of bins in a column
 
-const unsigned int numOfFirstRobots{ 3 };
+const unsigned int numOfFirstRobots{ 10 };
 int numOfAvailableFirstRobots{ numOfFirstRobots };
 
 const unsigned int numOfSecondRobots{ 3 };
@@ -31,7 +31,7 @@ unsigned int maxNumOfBins{ xLenghOfWarehouse * yLenghOfWarehouse * zLenghOfWareh
 
 
 //functions-----------------------
-
+int generateRandomNumber(int max);
 //--------------------------------
 
 
@@ -46,6 +46,8 @@ int main()
 
 	for (int i = 0; i < numOfFirstRobots; i++) {
 		firstRobotObject.nameFillerFirstRobot(i);
+		firstRobotObject.xLocation = generateRandomNumber(xLenghOfWarehouse);
+		firstRobotObject.yLocation = generateRandomNumber(yLenghOfWarehouse);
 		// inserting objects to vector 
 		firstRobotsVector.push_back(firstRobotObject);
 
@@ -142,6 +144,20 @@ int main()
 
 					continue;
 				}
+				if (i == xLenghOfWarehouse && j == yLenghOfWarehouse)
+				{
+					if (k == 0) {
+						portObject.xLocation = i;
+						portObject.yLocation = j;
+
+						portObject.id = 2;
+
+						portsVector.push_back(portObject);
+					}
+
+
+					continue;
+				}
 
 				//----------------------------------------------
 
@@ -223,16 +239,6 @@ int main()
 	//	//std::cout << binsVector[i].id << "\t" << binsVector[i].binName << "\n";
 	//}
 
-	firstRobotsVector[0].xLocation = 3;
-
-	firstRobotsVector[1].xLocation = 2;
-	firstRobotsVector[1].yLocation = 3;
-
-	firstRobotsVector[2].xLocation = 1;
-	firstRobotsVector[2].yLocation = 4;
-
-
-
 	
 	//the evaluation of warehouse throughput
 	while (!queueOfBinRetrival.empty())//every time when all robots assigned comes back and checks
@@ -242,7 +248,7 @@ int main()
 		retrivalTaskObject.firstRobotSelection(queueOfBinRetrival[0], firstRobotsVector);
 
 		retrivalTaskObject.portSelection(queueOfBinRetrival[0], portsVector);
-		std::cout<< "robot id" << retrivalTaskObject.selectedfirstRobotId << "\trobot id:" << retrivalTaskObject.selectedPortId <<"\n";
+		std::cout<< "robot id" << retrivalTaskObject.selectedfirstRobotId << "\tport id:" << retrivalTaskObject.selectedPortId <<"\n";
 
 		retrivalTaskVector.push_back(retrivalTaskObject);
 		
