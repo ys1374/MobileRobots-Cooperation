@@ -3,6 +3,10 @@
 #include "Autostore.h"
 #include <vector>
 
+
+
+
+
 const unsigned int xLenghOfWarehouse{ 20 }; //x direction of gird
 const unsigned int yLenghOfWarehouse{ 20 }; //y direction of gird
 const unsigned int zLenghOfWarehouse{ 20 }; //max num of bins in a column
@@ -23,9 +27,6 @@ const unsigned int filledPercentOfWarehouse{ 50 }; //in %
 long long int locationId{ 0 };
 
 unsigned int maxNumOfBins{ xLenghOfWarehouse * yLenghOfWarehouse * zLenghOfWarehouse * filledPercentOfWarehouse / 100 };
-Autostore::UniqueRandomNumberGenerator rng(maxNumOfBins); // use for generating an arbitrary queue for bin retrival
-
-//std::string binNamesOnGrid[xLenghOfWarehouse][yLenghOfWarehouse][zLenghOfWarehouse]{};
 
 
 
@@ -150,6 +151,7 @@ int main()
 
 
 
+	//queueOfBinRetrival.erase(queueOfBinRetrival.begin()+2 );
 
 
 
