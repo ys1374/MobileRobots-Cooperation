@@ -1,6 +1,6 @@
-#include "D:\Projects\MSc\Thesis\Simulation\Learn\Astar\as2\a-star-master\source\AStar.hpp"
 #include <iostream>
 #include "Autostore.h"
+#include "AStar.h"
 #include <vector>
 
 
@@ -11,7 +11,7 @@ const unsigned int xLenghOfWarehouse{ 30 }; //max x size of gird
 const unsigned int yLenghOfWarehouse{ 30 }; //max y size of gird
 const unsigned int zLenghOfWarehouse{ 20 }; //max num of bins in a column
 
-const unsigned int numOfFirstRobots{ 10 };
+const unsigned int numOfFirstRobots{ 3 };
 int numOfAvailableFirstRobots{ numOfFirstRobots };
 
 const unsigned int numOfSecondRobots{ 3 };
@@ -53,6 +53,7 @@ int main()
 
 		//std::cout << firstRobotsVector[i].id << "\t" << firstRobotsVector[i].name << "\n";
 	}
+
 	//------------------------------------------
 
 	//second robot------------------------------
@@ -144,7 +145,7 @@ int main()
 
 					continue;
 				}
-				if (i == xLenghOfWarehouse && j == yLenghOfWarehouse)
+				if (i == xLenghOfWarehouse-1 && j == yLenghOfWarehouse/2)
 				{
 					if (k == 0) {
 						portObject.xLocation = i;
@@ -241,14 +242,18 @@ int main()
 
 	
 	//the evaluation of warehouse throughput
-	while (!queueOfBinRetrival.empty())//every time when all robots assigned comes back and checks
+	while (!queueOfBinRetrival.empty())//it will repeat until no retrival task remains
 	{	
 		retrivalTaskObject.id = retrivalTaskId;
 
 		retrivalTaskObject.firstRobotSelection(queueOfBinRetrival[0], firstRobotsVector);
-
 		retrivalTaskObject.portSelection(queueOfBinRetrival[0], portsVector);
+		
 		std::cout<< "robot id" << retrivalTaskObject.selectedfirstRobotId << "\tport id:" << retrivalTaskObject.selectedPortId <<"\n";
+
+		retrivalTaskObject.cycleTime(queueOfBinRetrival[0], portsVector, firstRobotsVector, xLenghOfWarehouse, yLenghOfWarehouse);
+
+		
 
 		retrivalTaskVector.push_back(retrivalTaskObject);
 		
@@ -287,11 +292,11 @@ int main()
 		
 		queueOfBinRetrival.erase(queueOfBinRetrival.begin());
 
-		//break;
+		break;
 	}
 
 	if (queueOfBinRetrival.empty()){std::cout << "Empty Retrival Queue!\n";}
-	else{ std::cout << "Something Wrong!\n"; }
+	else{ std::cout << "Retrival Queue Not Empty Or Something Wrong!\n"; }
 	
 
 
