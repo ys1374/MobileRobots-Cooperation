@@ -8,6 +8,9 @@
 #include <algorithm> // For std::shuffle
 #include <random> // For std::default_random_engine
 #include <chrono> // For std::chrono::system_clock
+//#include "D:\Projects\MSc\Thesis\Simulation\Learn\Astar\as2\a-star-master\source\AStar.hpp"
+#include "AStar.h"
+
 
 namespace Autostore {
 
@@ -155,7 +158,7 @@ namespace Autostore {
 
 	class retrivalTask {
 	public:
-		int id{ -1 };
+		long long int id{ -1 };
 
 		int portXLocation{ -1 };
 		int portYLocation{ -1 };
@@ -167,12 +170,12 @@ namespace Autostore {
 		int binYLocation{ -1 };
 		int binZLocation{ -1 };
 
-		int selectedPortId{ 0 };
-		int selectedfirstRobotId{ 0 };
+		int selectedPortId{ -1 };
+		int selectedfirstRobotId{ -1 };
 
 		
-		int minCostPort{ 1000000000 };
-
+		int minCostBinToPort{ 1000000000 };
+		int minCostRobotToBin{ 100000000 };
 
 
 		void firstRobotSelection( Autostore::bin bin_, std::vector<Autostore::firstRobot> firstRobotVector_) {
@@ -200,16 +203,16 @@ namespace Autostore {
 		}
 
 		void portSelection(Autostore::bin bin_, std::vector<Autostore::port> portVector_) {
-			int minCostRobot{ 100000000 };
+			
 			int Cost_{ 0 };
 
 			for (auto& port : portVector_) {
 
 				Cost_ = manhattanCostPort(bin_, port);
 				//std::cout << "port location:" << port.xLocation << " " << port.yLocation << "\t" << bin_.locationName << "\tCost:" << Cost_ << "\n";
-				if (Cost_ < minCostRobot) {
+				if (Cost_ < minCostRobotToBin) {
 					//std::cout << "iam in\n";
-					minCostRobot = Cost_;
+					minCostRobotToBin = Cost_;
 					portXLocation = port.xLocation;
 					portYLocation = port.yLocation;
 
@@ -218,46 +221,46 @@ namespace Autostore {
 
 
 			}
-			//std::cout << "selectedRobotId:" << selectedPortId << "\n\n";
-			//std::cout << "firstRobotXLocation:" << firstRobotXLocation << "\tfirstRobotYLocation:" << firstRobotYLocation << "\n";
 
-			//for (auto port : portVector_) {
+		}
 
-			//	auto Cost_ = manhattanCostPort(bin_, port);
-			//	if (minCostPort > Cost_) {
+		void cycleTime(Autostore::bin& bin_, std::vector<Autostore::port> portVector_, std::vector<Autostore::firstRobot>& robot_,  int xLenghOfWarehouse, int yLenghOfWarehouse)
+		{
+			AStar::Generator pathObjectFirstRobotToBin;
+			pathObjectFirstRobotToBin.setWorldSize({ xLenghOfWarehouse, yLenghOfWarehouse });
+			pathObjectFirstRobotToBin.setHeuristic(AStar::Heuristic::manhattan);
+			pathObjectFirstRobotToBin.setDiagonalMovement(false);
 
-			//		minCostPort = Cost_;
-			//		portXLocation = port.xLocation;
-			//		task_.portYLocation = port.yLocation;
+			std::cout << "Generate path ... \n";
+			auto path = pathObjectFirstRobotToBin.findPath({ robot_[selectedfirstRobotId].xLocation, robot_[selectedfirstRobotId].yLocation}, {bin_.xLocation, bin_.yLocation});
 
-			//	}
+			//path.
+
+			for (auto& coordinate : path) {
+				std::cout << coordinate.x << " " << coordinate.y << "\n";
+			}
+
+			//std::cout << "Robot location is:" << robot_.xLocation << " " << robot_.yLocation;
+			//std::cout << "\tBin xlocation is:" << bin_.xLocation;
+			//std::cout << "\tmanhatan cost is:" << manhattanCostRobot(bin_, robot_) << "\n";
+
+			//int mcost = manhattanCostRobot(bin_, robot_);
+			//robot_.xLocation = bin_.xLocation;
+			//robot_.yLocation = bin_.yLocation;
 
 
-			//}
-			//std::cout << "portXLocation:" << task_.portXLocation << "\tportYLocation" << task_.portYLocation << "\n";
-			//std::cout << "------------------------------------------\n";
+			//return mcost;
 		}
 
 		int manhattanCostRobot(Autostore::bin bin_, Autostore::firstRobot robot_) {
 			return{ abs(bin_.xLocation - robot_.xLocation) + abs(bin_.yLocation - robot_.yLocation) };
 		}
+
 		int manhattanCostPort(Autostore::bin bin_, Autostore::port port_) {
 			return{ abs(bin_.xLocation - port_.xLocation) + abs(bin_.yLocation - port_.yLocation) };
 		}
 
-		double cycleTime(Autostore::bin bin_, Autostore::firstRobot& robot_) {
 
-			std::cout << "Robot location is:" << robot_.xLocation << " " << robot_.yLocation;
-			std::cout << "\tBin xlocation is:" << bin_.xLocation;
-			std::cout << "\tmanhatan cost is:" << manhattanCostRobot(bin_, robot_) << "\n";
-
-			int mcost = manhattanCostRobot(bin_, robot_);
-			robot_.xLocation = bin_.xLocation;
-			robot_.yLocation = bin_.yLocation;
-
-
-			return mcost;
-		}
 
 
 
