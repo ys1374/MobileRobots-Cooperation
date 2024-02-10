@@ -1,4 +1,4 @@
-#include "D:\Projects\MSc\Thesis\Simulation\Learn\Astar\as2\a-star-master\source\AStar.hpp"
+#include "AStar.h"
 #include <algorithm>
 #include <math.h>
 
