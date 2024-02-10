@@ -29,7 +29,7 @@
     <ClInclude Include="Autostore.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="project">
+    <ClInclude Include="AStar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

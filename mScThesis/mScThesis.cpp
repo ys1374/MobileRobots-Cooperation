@@ -9,7 +9,7 @@
 
 const unsigned int xLenghOfWarehouse{ 30 }; //max x size of gird
 const unsigned int yLenghOfWarehouse{ 30 }; //max y size of gird
-const unsigned int zLenghOfWarehouse{ 20 }; //max num of bins in a column
+const unsigned int zLenghOfWarehouse{ 2 }; //max num of bins in a column
 
 const unsigned int numOfFirstRobots{ 3 };
 int numOfAvailableFirstRobots{ numOfFirstRobots };
@@ -32,6 +32,9 @@ unsigned int maxNumOfBins{ xLenghOfWarehouse * yLenghOfWarehouse * zLenghOfWareh
 
 //functions-----------------------
 int generateRandomNumber(int max);
+void saveVectorToFile(const std::vector<Autostore::bin>& vec, const std::string& filename);
+void loadVectorFromFile(std::vector<Autostore::bin>& vec, const std::string& filename);
+void fillQueueOfBinRetrival(std::vector<Autostore::bin>& queueOfBinRetrival, const std::string& filename, std::vector<Autostore::bin> binsVector_);
 //--------------------------------
 
 
@@ -119,7 +122,10 @@ int main()
 				//ports excluded top grid location for --------
 				if (i== xLenghOfWarehouse/2 &&j== 0) {
 
+					
+
 					if (k == 0) {
+						//std::cout << "port is 0:" << i << " " << j << "\n";
 						portObject.xLocation = i;
 						portObject.yLocation = j;
 
@@ -133,7 +139,9 @@ int main()
 				}
 				if (i == 0 && j == yLenghOfWarehouse / 2)
 				{
+					
 					if (k == 0) {
+						//std::cout << "port is 1:" << i << " " << j << "\n";
 						portObject.xLocation = i;
 						portObject.yLocation = j;
 
@@ -147,7 +155,9 @@ int main()
 				}
 				if (i == xLenghOfWarehouse-1 && j == yLenghOfWarehouse/2)
 				{
+					
 					if (k == 0) {
+						//std::cout << "port is 2:" << i << " " << j << "\n";
 						portObject.xLocation = i;
 						portObject.yLocation = j;
 
@@ -195,6 +205,11 @@ int main()
 		}
 	}
 
+
+	//for (auto port : portsVector) {
+	//	std::cout << "ports location" << port.xLocation << " " << port.yLocation;
+	//}
+
 	std::cout << "Objects on Warehouse all set!\n";
 
 	//------------------------------------------
@@ -203,10 +218,27 @@ int main()
 	//make a Queue for retrival from shufling the binsVector--------
 	// 
 	// Create an instance of VectorShuffler for Autostore::bin type
-	Autostore::VectorShuffler<Autostore::bin> shuffler;
+	//Autostore::VectorShuffler<Autostore::bin> shuffler;
 
 	// Shuffle the binsVector
-	std::vector<Autostore::bin> queueOfBinRetrival = shuffler.shuffleVector(binsVector);
+	//std::vector<Autostore::bin> queueOfBinRetrival = shuffler.shuffleVector(binsVector);
+	std::vector<Autostore::bin> queueOfBinRetrival;
+	queueOfBinRetrival.reserve(maxNumOfBins);
+
+	// read file if file exist fill the retrival queue with file if not it generate new from binsVector shuffle
+	fillQueueOfBinRetrival(queueOfBinRetrival, "queueOfBinRetrival.dat", binsVector);
+
+	//for (auto item : queueOfBinRetrival) {
+	//	std::cout << item.locationName<<"\n";
+	//}
+
+	//saveVectorToFile(queueOfBinRetrival, "queueOfBinRetrival.dat");
+
+	// Later...
+	//std::vector<Autostore::bin> loadedQueue;
+	//loadVectorFromFile(loadedQueue, "queueOfBinRetrival.dat");
+
+
 	//--------------------------------------------------------------
 
 
@@ -231,6 +263,7 @@ int main()
 
 
 	std::vector<Autostore::retrivalTask> retrivalTaskVector;// Vector of class objects
+	retrivalTaskVector.reserve(maxNumOfBins);
 	Autostore::retrivalTask retrivalTaskObject;
 
 	//for (unsigned int i = 0; (i) < (maxNumOfBins); i++) {
@@ -240,20 +273,31 @@ int main()
 	//	//std::cout << binsVector[i].id << "\t" << binsVector[i].binName << "\n";
 	//}
 
-	
+	//Autostore::constantsAutostore constants;
 	//the evaluation of warehouse throughput
 	while (!queueOfBinRetrival.empty())//it will repeat until no retrival task remains
 	{	
 		retrivalTaskObject.id = retrivalTaskId;
 
+		std::cout  << "\n" ;
+
+
 		retrivalTaskObject.firstRobotSelection(queueOfBinRetrival[0], firstRobotsVector);
 		retrivalTaskObject.portSelection(queueOfBinRetrival[0], portsVector);
 		
-		std::cout<< "robot id" << retrivalTaskObject.selectedfirstRobotId << "\tport id:" << retrivalTaskObject.selectedPortId <<"\n";
+		std::cout << "Bin:" << 
+			queueOfBinRetrival[0].locationName << 
+			"\tPort:" <<
+			retrivalTaskObject.portXLocation << " " <<
+			retrivalTaskObject.portYLocation <<
+			"\trobot:" <<
+			firstRobotsVector[retrivalTaskObject.selectedfirstRobotId].xLocation << " " <<
+			firstRobotsVector[retrivalTaskObject.selectedfirstRobotId].yLocation <<
+			"\tport id:" << retrivalTaskObject.selectedPortId << "\n";
 
-		retrivalTaskObject.cycleTime(queueOfBinRetrival[0], portsVector, firstRobotsVector, xLenghOfWarehouse, yLenghOfWarehouse);
-
+		double cycleTime = retrivalTaskObject.cycleTime(queueOfBinRetrival[0], portsVector, firstRobotsVector, xLenghOfWarehouse, yLenghOfWarehouse);
 		
+		std::cout << "minCostRobotToBin" << retrivalTaskObject.minCostRobotToBin << "\tminCostBinToPort:" << retrivalTaskObject.minCostBinToPort << "\tcycleTime" << cycleTime << "\n";
 
 		retrivalTaskVector.push_back(retrivalTaskObject);
 		
@@ -301,5 +345,6 @@ int main()
 
 
 	//std::cout << queueOfBinRetrival[0].binName << "\t" << queueOfBinRetrival[0].locationName << "\n";
+	return 0;
 }
 

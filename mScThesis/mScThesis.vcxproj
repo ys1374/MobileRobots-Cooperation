@@ -132,7 +132,7 @@
     <ClCompile Include="mScThesis.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="project" />
+    <ClInclude Include="AStar.h" />
     <ClInclude Include="Autostore.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
