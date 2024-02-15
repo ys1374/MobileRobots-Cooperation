@@ -5,24 +5,19 @@
 
 
 
-const unsigned int filledPercentOfWarehouse{ 50 }; //in %
+const unsigned int filledPercentOfWarehouse{ 32 }; //in %
 
 
 // ************** if changed these 3 delete files************************
 const unsigned int xLenghOfWarehouse{ 30 }; //max x size of gird
 const unsigned int yLenghOfWarehouse{ 30 }; //max y size of gird
 const unsigned int zLenghOfWarehouse{ 20 }; //max num of bins in a column
+const unsigned int numOfFirstRobots{ 5 };
+const unsigned int numOfSecondRobots{ 3 };
 //***********************************************************************
 
-const unsigned int numOfFirstRobots{ 5 };
-int numOfAvailableFirstRobots{ numOfFirstRobots };
+double hightOfBin{ 0.33 };
 
-const unsigned int numOfSecondRobots{ 3 };
-int numOfAvailableSecondRobots{ numOfSecondRobots };
-
-//std::vector<int> queueOfBinRetrival{};
-std::vector<int> binsOnRetrival{};
-std::vector<int> queueOfBinStorage{};
 
 long long int locationId{ 0 };
 long long int retrivalTaskId{ 0 };
@@ -58,10 +53,8 @@ int main()
 
 		//std::cout << firstRobotsVector[i].id << "\t" << firstRobotsVector[i].name << "\n";
 	}
-
-
-
 	//------------------------------------------
+
 
 	//second robot------------------------------
 	std::vector<Autostore::secondRobot> secondRobotsVector;// Vector of class objects
@@ -95,14 +88,14 @@ int main()
 	);// Vector of class objects
 
 	Autostore::gridLocation gridLocationObject;//creating object
-
+	//------------------------------------------
 
 	//port objects---------------------------------
 	std::vector<Autostore::port> portsVector;// Vector of class objects
 	Autostore::port portObject;
 	//---------------------------------------------
 	
-
+	//fill locations and bins--------------------------------------------------------------------------------
 	for (int k = 0; k < zLenghOfWarehouse; k++) {
 		for (int j = 0; j < yLenghOfWarehouse; j++) {
 			for (int i = 0; i < xLenghOfWarehouse; i++) {
@@ -207,33 +200,35 @@ int main()
 	//-------------------------------------------------------------------------------------------------------
 
 
-	//make a Queue for retrival from shufling the binsVector--------
+	//make a Queue for retrival from shufling the binsVector-----------------
 	std::vector<Autostore::bin> queueOfBinRetrival;
 	queueOfBinRetrival.reserve(maxNumOfBins);
 
 	// read file if file exist fill the retrival queue with file if not it generate new from binsVector shuffle
 	fillQueueOfBinRetrival(queueOfBinRetrival, "queueOfBinRetrival.txt", binsVector);
-	//--------------------------------------------------------------
+	//-----------------------------------------------------------------------
 
+	//filling retrivalTaskObject--------------------------------------------------------------
 	Autostore::retrivalTask retrivalTaskObject;
-
-	//std::vector<Autostore::bin>* binsVector2;// Vector of class objects
-	//binsVector2 = *binsVector;
 
 	retrivalTaskObject.portsVector = portsVector;
 	retrivalTaskObject.firstRobotsVector = firstRobotsVector;
 	retrivalTaskObject.secondRobotsVector = secondRobotsVector;
 	retrivalTaskObject.binsVector = binsVector;
+	//retrivalTaskObject.gridLocationVector = gridLocationVector;
 
 	retrivalTaskObject.mainPortsVector = &portsVector;
 	retrivalTaskObject.mainFirstRobotsVector = &firstRobotsVector;
 	retrivalTaskObject.mainSecondRobotsVector = &secondRobotsVector;
 	retrivalTaskObject.mainBinsVector = &binsVector;
-
+	retrivalTaskObject.mainGridLocationVector = &gridLocationVector;
+	//---------------------------------------------------------------------------------------
+	retrivalTaskObject.constants.xLenghOfWarehouse = xLenghOfWarehouse;
+	retrivalTaskObject.constants.yLenghOfWarehouse = yLenghOfWarehouse;
+	retrivalTaskObject.constants.zLenghOfWarehouse = zLenghOfWarehouse;
+	retrivalTaskObject.constants.hightOfBin = hightOfBin;
 	
-	//retrivalTaskObject.setVectors(portsVector, firstRobotsVector, secondRobotsVector, binsVector);
-	
-	
+	retrivalTaskObject.findTopBin(5, 5);
 	
 	//the evaluation of warehouse throughput
 	while (!queueOfBinRetrival.empty())
@@ -247,7 +242,7 @@ int main()
 		retrivalTaskObject.firstRobotSelection();
 		retrivalTaskObject.portSelection();
 		
-		double cycleTime = retrivalTaskObject.cycleTime(xLenghOfWarehouse, yLenghOfWarehouse);
+		double cycleTime = retrivalTaskObject.cycleTime();
 
 		//std::cout << "Bin:" << 
 		//	queueOfBinRetrival[0].locationName << 
@@ -273,15 +268,18 @@ int main()
 		//}
 
 
-
+#if 1
 		//if (queueOfBinRetrival.empty()) { break; }
-		retrivalTaskObject.reLocationCycleTime();
+
+		//retrivalTaskObject.reLocationCycleTime();
 		
 		
 		std::cout << "Finished Retriving " << queueOfBinRetrival[0].locationName << ". CycleTime: " << cycleTime << "\n\n";
-		std::cout << binsVector[retrivalTaskObject.binToRetrive.binId].xLocation;
+		//std::cout << "\n" << binsVector[retrivalTaskObject.binToRetrive.binId].xLocation << " " << binsVector[retrivalTaskObject.binToRetrive.binId].yLocation;
+		//std::cout << "\n" << firstRobotsVector[retrivalTaskObject.selectedfirstRobot.id].xLocation << " " <<
+		//	firstRobotsVector[retrivalTaskObject.selectedfirstRobot.id].yLocation << "\n";
 		queueOfBinRetrival.erase(queueOfBinRetrival.begin());
-
+#endif
 		
 		break;
 	}
