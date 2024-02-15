@@ -216,11 +216,22 @@ int main()
 	//--------------------------------------------------------------
 
 	Autostore::retrivalTask retrivalTaskObject;
-		
+
+	//std::vector<Autostore::bin>* binsVector2;// Vector of class objects
+	//binsVector2 = *binsVector;
+
+	retrivalTaskObject.portsVector = portsVector;
 	retrivalTaskObject.firstRobotsVector = firstRobotsVector;
 	retrivalTaskObject.secondRobotsVector = secondRobotsVector;
-	retrivalTaskObject.portsVector = portsVector;
 	retrivalTaskObject.binsVector = binsVector;
+
+	retrivalTaskObject.mainPortsVector = &portsVector;
+	retrivalTaskObject.mainFirstRobotsVector = &firstRobotsVector;
+	retrivalTaskObject.mainSecondRobotsVector = &secondRobotsVector;
+	retrivalTaskObject.mainBinsVector = &binsVector;
+
+	
+	//retrivalTaskObject.setVectors(portsVector, firstRobotsVector, secondRobotsVector, binsVector);
 	
 	
 	
