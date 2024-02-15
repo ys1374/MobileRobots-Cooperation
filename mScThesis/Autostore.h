@@ -3,9 +3,8 @@
 
 #include <string>
 #include <iostream>
-#include <random>
 #include <set>
-#include <algorithm> // For std::shuffle
+//#include <algorithm> // For std::shuffle
 #include <random> // For std::default_random_engine
 #include <chrono> // For std::chrono::system_clock
 #include "AStar.h"
@@ -14,6 +13,8 @@
 
 namespace Autostore {
 
+	
+
 	struct constantsAutostore {
 
 		//Division x (meter)
@@ -21,23 +22,25 @@ namespace Autostore {
 		//Division y (meter)
 		const double deltaY{ 0.5 };
 		//Exchange time( seconds )
-		const int timeExchange{ 5 };
+		const double timeExchange{ 5 };
 		//Locking and unlocking time( seconds )
-		const int lockUnlockTime{ 5 };
+		const double lockUnlockTime{ 5 };
 		//Robot velocity(m/s)
-		const int robotVelocity{ 2 };
+		const double robotVelocity{ 2 };
 		//Robot pick / deposit velocity(m/s)
-		const int robotPickOrDepositeVelocity{ 2 };
+		const double robotPickOrDepositeVelocity{ 1.6 };
 		//Wheel exchange time( seconds )
-		const int wheelExchangeTime{ 1 };
+		const double wheelExchangeTime{ 1 };
 		//toward x time
 		const double towardXCellTime{ deltaX / robotVelocity };
 		//toward y time
 		const double towardYCellTime{ deltaY / robotVelocity };
+		//
+		double zLenghOfWarehouse{ 0 };
+		double hightOfBin{ 0 };
 
 	};
 	
-
 	struct port {
 		int xLocation{ -1 }; //tol	
 		int yLocation{ -1 }; //arz 
@@ -186,15 +189,17 @@ namespace Autostore {
 
 	class retrivalTask {
 	public:
-		
-		const int movementCostTimeForOneCell = 2;//in seconds
-		const int changeDirectionCostTime = 10;//in seconds
 
 		///////////////////////////
 		long long int id{ -1 };
 		
 		int minCostRobotToBin{ 1000000000 };
 		int minCostBinToPort{ 100000000 };
+
+		bool directAccessToBin{ false };
+
+		
+		///////////////////////////
 
 		std::vector<port>* mainPortsVector;
 		std::vector<firstRobot>* mainFirstRobotsVector;
@@ -215,7 +220,18 @@ namespace Autostore {
 		void reset() {
 			int minCostRobotToBin{ 1000000000 };
 			int minCostBinToPort{ 100000000 };
+
+			directAccessToBin = false;
 		};
+
+		void binIsDirectAccess(std::vector<std::vector<std::vector<Autostore::gridLocation>>>& gridLV_) {
+			auto x_ = binToRetrive.xLocation;
+			auto y_ = binToRetrive.yLocation;
+			auto z_ = binToRetrive.zLocation + 1;
+
+			//directAccessToBin = !gridLV_[x_][y_][z_].isFilledWithBin;
+			directAccessToBin = true;
+		}
 
 		void firstRobotSelection() {
 
@@ -365,7 +381,21 @@ namespace Autostore {
 			return totalCost;
 		};
 
-		void reLocationCycleTime() {
+		double elevatingCycleTime() {
+
+			auto elevatingCells = constants.zLenghOfWarehouse - binToRetrive.zLocation;
+			double cycleTime = (elevatingCells * constants.hightOfBin) / constants.robotPickOrDepositeVelocity;
+			cycleTime = cycleTime + constants.lockUnlockTime;
+			
+			if (directAccessToBin) {
+				return cycleTime;
+			}
+			else {
+				return cycleTime + reLocationCycleTime();
+			}
+		}
+
+		double reLocationCycleTime() {
 			auto& portsVector_ = (*mainPortsVector);
 			auto& firstRobotsVector_ = (*mainFirstRobotsVector);
 			auto& secondRobotsVector_ = (*mainSecondRobotsVector);
@@ -376,6 +406,8 @@ namespace Autostore {
 			//std::cout << "before" << binsVector_[binToRetrive.binId].xLocation;
 			//binsVector_[binToRetrive.binId].xLocation = 5;
 			//std::cout << "after" << binsVector_[binToRetrive.binId].xLocation;
+
+			return 0.0;
 		};
 
 		double cycleTime(int xLenghOfWarehouse, int yLenghOfWarehouse)
@@ -410,7 +442,9 @@ namespace Autostore {
 			}
 			auto robotToBinCost = onGridRobotMovementCycleTime(pathRobotToBin);
 
-			std::cout << pathRobotToBin[0].x<<" "<< pathRobotToBin[0].y << "\t";
+
+			
+			std::cout << pathRobotToBin.size() << " " << pathRobotToBin.size() << "\t";
 
 
 			std::cout << "\npathBinToPort----------------------------------------------------------------------\n";
@@ -428,9 +462,10 @@ namespace Autostore {
 			std::cout << "\n";
 
 			//Total CycleTime
-			double cycleTime = robotToBinCost + binToPortCost ;
+			double totalCycleTime = robotToBinCost + binToPortCost ;
+			totalCycleTime = elevatingCycleTime() + totalCycleTime;
 
-			return cycleTime;
+			return totalCycleTime;
 		};
 		
 
