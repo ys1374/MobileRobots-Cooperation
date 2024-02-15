@@ -196,6 +196,11 @@ namespace Autostore {
 		int minCostRobotToBin{ 1000000000 };
 		int minCostBinToPort{ 100000000 };
 
+		std::vector<port>* mainPortsVector;
+		std::vector<firstRobot>* mainFirstRobotsVector;
+		std::vector<secondRobot>* mainSecondRobotsVector;
+		std::vector<bin>* mainBinsVector;
+
 		std::vector<port> portsVector;
 		std::vector<firstRobot> firstRobotsVector;
 		std::vector<secondRobot> secondRobotsVector;
@@ -216,7 +221,7 @@ namespace Autostore {
 
 			int Cost_{ 0 };
 
-			for (auto robot : firstRobotsVector) {
+			for (auto& robot : firstRobotsVector) {
 
 				Cost_ = manhattanCostRobot(robot);
 				std::cout << Cost_ << " ";
@@ -242,7 +247,7 @@ namespace Autostore {
 			
 			int Cost_{ 0 };
 			
-			for (auto port : portsVector) {
+			for (auto& port : portsVector) {
 
 				int Cost_ = manhattanCostPort(port);
 				std::cout << Cost_ << " ";
@@ -361,10 +366,16 @@ namespace Autostore {
 		};
 
 		void reLocationCycleTime() {
-			std::cout << "binid" << binToRetrive.binId;
-			std::cout << "before" << binsVector[binToRetrive.binId].xLocation;
-			binsVector[binToRetrive.binId].xLocation = 5;
-			std::cout << "after" << binsVector[binToRetrive.binId].xLocation;
+			auto& portsVector_ = (*mainPortsVector);
+			auto& firstRobotsVector_ = (*mainFirstRobotsVector);
+			auto& secondRobotsVector_ = (*mainSecondRobotsVector);
+			auto& binsVector_ = (*mainBinsVector);
+
+			//std::cout << (*binsVector);
+			//std::cout << "binid" << binToRetrive.binId;
+			//std::cout << "before" << binsVector_[binToRetrive.binId].xLocation;
+			//binsVector_[binToRetrive.binId].xLocation = 5;
+			//std::cout << "after" << binsVector_[binToRetrive.binId].xLocation;
 		};
 
 		double cycleTime(int xLenghOfWarehouse, int yLenghOfWarehouse)
@@ -399,6 +410,8 @@ namespace Autostore {
 			}
 			auto robotToBinCost = onGridRobotMovementCycleTime(pathRobotToBin);
 
+			std::cout << pathRobotToBin[0].x<<" "<< pathRobotToBin[0].y << "\t";
+
 
 			std::cout << "\npathBinToPort----------------------------------------------------------------------\n";
 			for (auto& coordinate : pathBinToPort) {
@@ -410,12 +423,12 @@ namespace Autostore {
 				std::cout << coordinate.y << "\t";
 			}
 
-			auto pathBinToPortCost = onGridRobotMovementCycleTime(pathBinToPort);
+			auto binToPortCost = onGridRobotMovementCycleTime(pathBinToPort);
 			//------------------------------------------------------------------------------------------------------
 			std::cout << "\n";
 
 			//Total CycleTime
-			double cycleTime = robotToBinCost + pathBinToPortCost ;
+			double cycleTime = robotToBinCost + binToPortCost ;
 
 			return cycleTime;
 		};
