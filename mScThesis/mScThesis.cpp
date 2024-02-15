@@ -5,7 +5,7 @@
 
 
 
-const unsigned int filledPercentOfWarehouse{ 50 }; //in %
+const unsigned int filledPercentOfWarehouse{ 32 }; //in %
 
 
 // ************** if changed these 3 delete files************************
@@ -95,7 +95,7 @@ int main()
 	Autostore::port portObject;
 	//---------------------------------------------
 	
-	//-------------------------------------------------------------------------------------------------------
+	//fill locations and bins--------------------------------------------------------------------------------
 	for (int k = 0; k < zLenghOfWarehouse; k++) {
 		for (int j = 0; j < yLenghOfWarehouse; j++) {
 			for (int i = 0; i < xLenghOfWarehouse; i++) {
@@ -221,12 +221,14 @@ int main()
 	retrivalTaskObject.mainFirstRobotsVector = &firstRobotsVector;
 	retrivalTaskObject.mainSecondRobotsVector = &secondRobotsVector;
 	retrivalTaskObject.mainBinsVector = &binsVector;
-	//retrivalTaskObject.mainGridLocationVector = &gridLocationVector;
+	retrivalTaskObject.mainGridLocationVector = &gridLocationVector;
 	//---------------------------------------------------------------------------------------
+	retrivalTaskObject.constants.xLenghOfWarehouse = xLenghOfWarehouse;
+	retrivalTaskObject.constants.yLenghOfWarehouse = yLenghOfWarehouse;
 	retrivalTaskObject.constants.zLenghOfWarehouse = zLenghOfWarehouse;
 	retrivalTaskObject.constants.hightOfBin = hightOfBin;
 	
-	
+	retrivalTaskObject.findTopBin(5, 5);
 	
 	//the evaluation of warehouse throughput
 	while (!queueOfBinRetrival.empty())
@@ -237,12 +239,10 @@ int main()
 		retrivalTaskObject.id = retrivalTaskId;
 		retrivalTaskObject.binToRetrive = queueOfBinRetrival[0];
 
-		retrivalTaskObject.binIsDirectAccess(gridLocationVector);
 		retrivalTaskObject.firstRobotSelection();
 		retrivalTaskObject.portSelection();
 		
-		
-		double cycleTime = retrivalTaskObject.cycleTime(xLenghOfWarehouse, yLenghOfWarehouse);
+		double cycleTime = retrivalTaskObject.cycleTime();
 
 		//std::cout << "Bin:" << 
 		//	queueOfBinRetrival[0].locationName << 
@@ -269,13 +269,15 @@ int main()
 
 
 #if 1
-		if (queueOfBinRetrival.empty()) { break; }
+		//if (queueOfBinRetrival.empty()) { break; }
 
-		retrivalTaskObject.reLocationCycleTime();
+		//retrivalTaskObject.reLocationCycleTime();
 		
 		
 		std::cout << "Finished Retriving " << queueOfBinRetrival[0].locationName << ". CycleTime: " << cycleTime << "\n\n";
-		std::cout << binsVector[retrivalTaskObject.binToRetrive.binId].xLocation;
+		//std::cout << "\n" << binsVector[retrivalTaskObject.binToRetrive.binId].xLocation << " " << binsVector[retrivalTaskObject.binToRetrive.binId].yLocation;
+		//std::cout << "\n" << firstRobotsVector[retrivalTaskObject.selectedfirstRobot.id].xLocation << " " <<
+		//	firstRobotsVector[retrivalTaskObject.selectedfirstRobot.id].yLocation << "\n";
 		queueOfBinRetrival.erase(queueOfBinRetrival.begin());
 #endif
 		
