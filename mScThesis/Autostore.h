@@ -264,11 +264,11 @@ namespace Autostore {
 			for (auto& robot : firstRobotsVector) {
 
 				Cost_ = manhattanCostRobot(robot);
-				std::cout << Cost_ << " ";
+				//std::cout << Cost_ << " ";
 
 				if (Cost_ < minCostRobotToBin) {
 					
-					std::cout << "inR ";
+					//std::cout << "inR ";
 					minCostRobotToBin = Cost_;
 					selectedfirstRobot = robot;
 
@@ -276,7 +276,7 @@ namespace Autostore {
 
 			}
 
-			std::cout << "  Selected Robot:  " <<
+			std::cout << "Selected Robot:  " <<
 				"Id:" << selectedfirstRobot.id <<
 				" x:" << selectedfirstRobot.xLocation <<
 				" y:" << selectedfirstRobot.yLocation <<"\n";
@@ -290,10 +290,10 @@ namespace Autostore {
 			for (auto& port : portsVector) {
 
 				int Cost_ = manhattanCostPort(port);
-				std::cout << Cost_ << " ";
+				//std::cout << Cost_ << " ";
 
 				if (Cost_ < minCostBinToPort) {
-					std::cout << "inP ";
+					//std::cout << "inP ";
 					minCostBinToPort = Cost_;
 					selectedPort = port;
 
@@ -301,7 +301,7 @@ namespace Autostore {
 		
 			}
 
-			std::cout << "  Selected Port:  " <<
+			std::cout << "Selected Port:  " <<
 				"Id:" << selectedPort.id <<
 				" x:" << selectedPort.xLocation <<
 				" y:" << selectedPort.yLocation << "\n";
@@ -382,7 +382,7 @@ namespace Autostore {
 
 				if (currentDirection == Direction::towardX) {
 
-					std::cout << "Then Moved " << movesCount << " locations towardX." << std::endl;
+					std::cout << "Then Moved " << movesCount << " locations towardX." << "\n";
 
 					if (movesCount >= 6) { aftereCost = 4 + ((movesCount - 6) * constants.towardXCellTime); }
 					else if (movesCount <= 3) { aftereCost = 2; }
@@ -391,7 +391,7 @@ namespace Autostore {
 				}
 				else if (currentDirection == Direction::towardY) {
 
-					std::cout << "Then Moved " << movesCount << " locations towardY." << std::endl;
+					std::cout << "Then Moved " << movesCount << " locations towardY." << "\n";
 
 					if (movesCount >= 8) { aftereCost = 4 + ((movesCount - 8) * constants.towardYCellTime); }
 					else if (movesCount <= 4) { aftereCost = 2; }
@@ -418,7 +418,7 @@ namespace Autostore {
 
 		bin findTopBin(int x_, int y_) {
 
-			std::cout<<"findTopBin: " << x_ << " " << y_ << "\n";
+			//std::cout<<"findTopBin: " << x_ << " " << y_ << "\n";
 			if (x_ >= 0 && y_ >= 0 && 
 				x_ <= constants.xLenghOfWarehouse -1 && 
 				y_ <= constants.yLenghOfWarehouse - 1 &&
@@ -486,9 +486,9 @@ namespace Autostore {
 					//(newX == constants.xLenghOfWarehouse -1  && newY == constants.yLenghOfWarehouse / 2)
 					) 
 				{ continue; }
-				std::cout << "outttttttt11111111111111111111\n";
+
 				newTopbin_ = findTopBin(newX, newY);
-				std::cout << "outttttttt\n";
+
 
 
 
@@ -502,7 +502,8 @@ namespace Autostore {
 						newY > 0 && newY < constants.yLenghOfWarehouse - 1 &&
 						(gridLocationVector_[newX][newY][0].binId != -1) && //for excluded grid location
 						(gridLocationVector_[newX][newY][newZ].binId == -1)) {
-						std::cout << "innnnnnnnnnnnnnnnnnn\n";
+
+						//std::cout << "innnnnnnnnnnnnnnnnnn\n";
 						//std::cout << "newX " << newX << " newy" << newY << " newz" << newZ <<"\n";
 
 
@@ -523,15 +524,15 @@ namespace Autostore {
 
 					}
 					else {
-						std::cout << "direction excluded\n";
+						//std::cout << "direction excluded\n";
 						continue;
 						
 					}
 				}
 			}
 			
-			std::cout << "top bin z" << findTopBin(bestLocation.xLocation, bestLocation.yLocation).zLocation ;
-			std::cout << "\nbestLocation: " << bestLocation.locationName;
+			//std::cout << "top bin z" << findTopBin(bestLocation.xLocation, bestLocation.yLocation).zLocation ;
+			std::cout << "\nBestLocation: " << bestLocation.locationName;
 			return bestLocation;
 
 
@@ -540,15 +541,6 @@ namespace Autostore {
 		double reLocationCycleTime() {
 
 			std::cout << "No direct Access\n" << "relocation in progress ...\n";
-
-
-
-			// Define the search pattern for the 8 surrounding cells and their cost
-			//int directions[8][3] = { {-1, 0, 1}, {1, 0, 1}, 
-			//	{0, -1, 1}, {0, 1, 1}, {-1, -1, 3}, 
-			//	{-1, 1, 3}, {1, -1, 3}, {1, 1, 3} };
-
-
 
 
 			int binX{ binToRetrive.xLocation };//bin to relocate
@@ -568,7 +560,7 @@ namespace Autostore {
 			int numOfBinToRelocate = topBin.zLocation - binToRetrive.zLocation ;
 			int numOfElevatingCellsBinXBinY{0}, numOfDepositCellsNewXNewY{0};
 
-			std::cout << "numOfBinToRelocate: " << numOfBinToRelocate <<"\n";
+			std::cout << "numOfBinToRelocate: " << numOfBinToRelocate <<"";
 
 
 
@@ -582,7 +574,7 @@ namespace Autostore {
 				int newZ{ bestLocation.zLocation };
 
 
-				//elevating cycle time
+				//elevating cycle time fot top bin on goal x and y column
 				topBin = findTopBin(binX, binY);
 				binZ = topBin.zLocation;
 
@@ -601,7 +593,7 @@ namespace Autostore {
 
 
 
-				// depositCells
+				// depositCells cycle time
 				numOfDepositCellsNewXNewY = constants.zLenghOfWarehouse - newZ;
 				cycleTime = cycleTime + (numOfDepositCellsNewXNewY * constants.hightOfBin) / constants.robotPickOrDepositeVelocity;
 				cycleTime = cycleTime + constants.lockUnlockTime;
@@ -637,7 +629,7 @@ namespace Autostore {
 				gridLocationVector_[newX][newY][newZ].binId = binid;
 				gridLocationVector_[newX][newY][newZ].isFilledWithBin = true;
 
-				std::cout << "\ncycletime: " << cycleTime<<"\n\n";
+				std::cout << "  cycletime: " << cycleTime<<"";
 
 			}
 			
@@ -678,7 +670,7 @@ namespace Autostore {
 			auto robotY_ = selectedfirstRobot.yLocation;
 
 			auto pathRobotToBin = pathObject.findPath({ robotX_, robotY_ }, { binX_, binY_ });
-
+#if 0
 			std::cout << "path robot to bin------------------------------------------------------------------ \n";
 			for (auto& coordinate : pathRobotToBin) {
 				std::cout << coordinate.x << "\t";
@@ -688,6 +680,8 @@ namespace Autostore {
 			for (auto& coordinate : pathRobotToBin) {
 				std::cout << coordinate.y << "\t";
 			}
+
+#endif
 			auto robotToBinCost = onGridRobotMovementCycleTime(pathRobotToBin);
 
 
@@ -717,6 +711,7 @@ namespace Autostore {
 			auto pathBinToPort = pathObject.findPath({ binX_, binY_ }, { portX_, portY_ });
 
 			//---------------------------------------------------------------------
+#if 0
 			std::cout << "\npathBinToPort----------------------------------------------------------------------\n";
 			for (auto& coordinate : pathBinToPort) {
 				std::cout << coordinate.x << "\t";
@@ -726,7 +721,7 @@ namespace Autostore {
 			for (auto& coordinate : pathBinToPort) {
 				std::cout << coordinate.y << "\t";
 			}
-
+#endif
 			auto binToPortCost = onGridRobotMovementCycleTime(pathBinToPort);
 
 
@@ -739,17 +734,24 @@ namespace Autostore {
 			binsVector_[binToRetrive.binId].zLocation = -1;
 
 			//---------------------------------------------------------------------
-			std::cout << "\n";
+			//std::cout << "\n";
 
 			return binToPortCost;
 		}
 
 		double cycleTime()
 		{
-
+			std::cout << "\nrobotToBin ... ";
 			auto robotToBinCycleTime_ = robotToBinCycleTime();
+			std::cout << "robotToBinCycleTime: " << robotToBinCycleTime_ <<"\n\n";
+
+
 			auto elevatingCycleTime_ = elevatingCycleTime();
+			std::cout << "\nelevatingCycleTime: " << elevatingCycleTime_ << "\n";
+
+			std::cout << "\nrobotAndBinToPort ... \n";
 			auto binToPortCycleTime_ = binToPortCycleTime();
+			std::cout << "robotAndBinToPortCycleTime: " << binToPortCycleTime_ << "\n\n";
 
 			return robotToBinCycleTime_ + elevatingCycleTime_ + binToPortCycleTime_;
 		};
