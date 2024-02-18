@@ -12,7 +12,7 @@ const unsigned int filledPercentOfWarehouse{ 60 }; //in %
 const unsigned int xLenghOfWarehouse{ 30 }; //max x size of gird
 const unsigned int yLenghOfWarehouse{ 30 }; //max y size of gird
 const unsigned int zLenghOfWarehouse{ 20 }; //max num of bins in a column
-const unsigned int numOfFirstRobots{ 5 };
+const unsigned int numOfFirstRobots{ 3 };
 const unsigned int numOfSecondRobots{ 3 };
 //***********************************************************************
 
@@ -214,7 +214,6 @@ int main()
 				}
 
 
-				label:
 				locationId++;
 				//std::cout << "locid" << gridLocationVector[i][j][k].locationId << "\t" << gridLocationVector[i][j][k].locationName << "\n";
 
@@ -240,6 +239,7 @@ int main()
 
 	//filling retrivalTaskObject--------------------------------------------------------------
 	Autostore::retrivalTask retrivalTaskObject;
+	std::vector<Autostore::retrivalTask> finishedRetriveTaskVector;
 
 	retrivalTaskObject.portsVector = portsVector;
 	retrivalTaskObject.firstRobotsVector = firstRobotsVector;
@@ -276,44 +276,32 @@ int main()
 		
 		double cycleTime = retrivalTaskObject.cycleTime();
 
-		//std::cout << "Bin:" << 
-		//	queueOfBinRetrival[0].locationName << 
-		//	"\tPort:" <<
-		//	retrivalTaskObject.portXLocation << " " <<
-		//	retrivalTaskObject.portYLocation <<
-		//	"\trobot:" <<
-		//	firstRobotsVector[retrivalTaskObject.selectedfirstRobotId].xLocation << " " <<
-		//	firstRobotsVector[retrivalTaskObject.selectedfirstRobotId].yLocation <<
-		//	"\tport id:" << retrivalTaskObject.selectedPortId << "\n";
+		firstRobotsVector[retrivalTaskObject.selectedfirstRobot.id].time = firstRobotsVector[retrivalTaskObject.selectedfirstRobot.id].time + cycleTime;
 
+		std::cout << "Finished Retriving " << queueOfBinRetrival[0].locationName << 
+			". CycleTime: " << cycleTime << " Robot Id: " << retrivalTaskObject.selectedfirstRobot.id
+			<< " RobotTime: " << firstRobotsVector[retrivalTaskObject.selectedfirstRobot.id].time;
 		
 		
-		//retrivalTaskVector.push_back(retrivalTaskObject);
-
-		//	firstRobot.time = firstRobot.time + retrivalTaskObject.cycleTime(queueOfBinRetrival[0], firstRobot);
-
-
-		//	std::cout << firstRobot.name << " " << "time:" << firstRobot.time << "\t" << "retrival task id:" << retrivalTaskObject.id << "\n";
-		//	queueOfBinRetrival.erase(queueOfBinRetrival.begin());
-
-		//	retrivalTaskId++;
-		//}
-
+		finishedRetriveTaskVector.push_back(retrivalTaskObject);
+		queueOfBinRetrival.erase(queueOfBinRetrival.begin());
+		
 
 #if 1
-		//if (queueOfBinRetrival.empty()) { break; }
+		if (firstRobotsVector[retrivalTaskObject.selectedfirstRobot.id].time >= (60 * 60)) {
+			std::cout << "\n\n\n************************One Hour is Passed**************************\n\n\n";
 
-		//retrivalTaskObject.reLocationCycleTime();
+			for (auto robot : firstRobotsVector) {
+				std::cout << "Robot Id:" << robot.id << " Robot time: " << robot.time << "\n";
+			}
+
+			std::cout << finishedRetriveTaskVector.size();
+			break;
+		}
 		
-		
-		std::cout << "Finished Retriving " << queueOfBinRetrival[0].locationName << ". CycleTime: " << cycleTime << "\n\n";
-		//std::cout << "\n" << binsVector[retrivalTaskObject.binToRetrive.binId].xLocation << " " << binsVector[retrivalTaskObject.binToRetrive.binId].yLocation;
-		//std::cout << "\n" << firstRobotsVector[retrivalTaskObject.selectedfirstRobot.id].xLocation << " " <<
-		//	firstRobotsVector[retrivalTaskObject.selectedfirstRobot.id].yLocation << "\n";
-		queueOfBinRetrival.erase(queueOfBinRetrival.begin());
 #endif
 		
-		//break;
+		
 	}
 
 	if (queueOfBinRetrival.empty()){std::cout << "\n\nEmpty Retrival Queue!\n";}
