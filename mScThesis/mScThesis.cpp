@@ -5,7 +5,7 @@
 
 
 
-const unsigned int filledPercentOfWarehouse{ 32 }; //in %
+const unsigned int filledPercentOfWarehouse{ 60 }; //in %
 
 
 // ************** if changed these 3 delete files************************
@@ -15,6 +15,9 @@ const unsigned int zLenghOfWarehouse{ 20 }; //max num of bins in a column
 const unsigned int numOfFirstRobots{ 5 };
 const unsigned int numOfSecondRobots{ 3 };
 //***********************************************************************
+
+
+
 
 double hightOfBin{ 0.33 };
 
@@ -36,7 +39,11 @@ void fillFirstRobotLocation(std::vector<Autostore::firstRobot>& firstRobotsVecto
 
 int main()
 {	
-	
+	int excludedGridLocations[10][10] = {
+	{xLenghOfWarehouse / 2 , 0, 0},
+	{0 , yLenghOfWarehouse / 2 , 1},
+	{xLenghOfWarehouse - 1, yLenghOfWarehouse / 2, 2}
+	};
 	//we need to fill the warehouse with robots and bins objects*************************************
 
 	//filling first robot-----------------------
@@ -108,6 +115,29 @@ int main()
 
 
 				//ports excluded top grid location for --------
+				//for (auto excludedpoints : excludedGridLocations) {
+				//	if (i == excludedpoints[0] && j == excludedpoints[1]) {
+
+
+				//		if (k == 0) {
+				//			//std::cout << "port is 0:" << i << " " << j << "\n";
+				//			portObject.xLocation = i;
+				//			portObject.yLocation = j;
+
+				//			portObject.id = excludedpoints[2];
+
+				//			portsVector.push_back(portObject);
+				//		}
+
+
+				//		goto label;
+				//	}
+				//}
+
+
+
+
+
 				if (i== xLenghOfWarehouse/2 &&j== 0) {
 
 					
@@ -184,7 +214,7 @@ int main()
 				}
 
 
-
+				label:
 				locationId++;
 				//std::cout << "locid" << gridLocationVector[i][j][k].locationId << "\t" << gridLocationVector[i][j][k].locationName << "\n";
 
@@ -215,20 +245,22 @@ int main()
 	retrivalTaskObject.firstRobotsVector = firstRobotsVector;
 	retrivalTaskObject.secondRobotsVector = secondRobotsVector;
 	retrivalTaskObject.binsVector = binsVector;
-	//retrivalTaskObject.gridLocationVector = gridLocationVector;
+	retrivalTaskObject.gridLocationVector = gridLocationVector;
 
 	retrivalTaskObject.mainPortsVector = &portsVector;
 	retrivalTaskObject.mainFirstRobotsVector = &firstRobotsVector;
 	retrivalTaskObject.mainSecondRobotsVector = &secondRobotsVector;
 	retrivalTaskObject.mainBinsVector = &binsVector;
 	retrivalTaskObject.mainGridLocationVector = &gridLocationVector;
+
+	retrivalTaskObject.vectorsFiller();
 	//---------------------------------------------------------------------------------------
 	retrivalTaskObject.constants.xLenghOfWarehouse = xLenghOfWarehouse;
 	retrivalTaskObject.constants.yLenghOfWarehouse = yLenghOfWarehouse;
 	retrivalTaskObject.constants.zLenghOfWarehouse = zLenghOfWarehouse;
 	retrivalTaskObject.constants.hightOfBin = hightOfBin;
 	
-	retrivalTaskObject.findTopBin(5, 5);
+
 	
 	//the evaluation of warehouse throughput
 	while (!queueOfBinRetrival.empty())
@@ -281,7 +313,7 @@ int main()
 		queueOfBinRetrival.erase(queueOfBinRetrival.begin());
 #endif
 		
-		break;
+		//break;
 	}
 
 	if (queueOfBinRetrival.empty()){std::cout << "\n\nEmpty Retrival Queue!\n";}
