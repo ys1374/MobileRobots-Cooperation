@@ -1,5 +1,4 @@
-#ifndef __Autostore_neo__8F637DB91972F6C878D41D63F7E7214F__
-#define __Autostore_neo__8F637DB91972F6C878D41D63F7E7214F__
+#pragma once
 
 #include <string>
 #include <iostream>
@@ -24,6 +23,8 @@ namespace Autostore {
 		const double deltaX{ 0.7 };
 		//Division y (meter)
 		const double deltaY{ 0.5 };
+		//Division z (meter)
+		const double deltaZ{ 0.33 };
 		//Exchange time( seconds )
 		const double timeExchange{ 5 };
 		//Locking and unlocking time( seconds )
@@ -38,12 +39,15 @@ namespace Autostore {
 		const double towardXCellTime{ deltaX / robotVelocity };
 		//toward y time
 		const double towardYCellTime{ deltaY / robotVelocity };
+		//toward z time
+		const double towardZCellTime{ deltaZ / robotPickOrDepositeVelocity };
+
 		//
 		int xLenghOfWarehouse{ -1 };
 		int yLenghOfWarehouse{ -1 };
 		int zLenghOfWarehouse{ -1 };
 
-		double hightOfBin{ 0 };
+		//double hightOfBin{ 0 };
 
 	};
 	
@@ -72,10 +76,12 @@ namespace Autostore {
 		void gridFillerWithBin(int i_, int j_, int k_, long long int loacationId_)
 		{
 			
-			isFilledWithBin =  true;
+			
 			locationId = loacationId_;
 			locationName = "x[" + std::to_string(i_) + "]" + "y[" + std::to_string(j_) + "]" + "z[" + std::to_string(k_) + "]";
-
+			xLocation = i_;//filling grid vector features
+			yLocation = j_;
+			zLocation = k_;
 
 		}
 
@@ -105,10 +111,13 @@ namespace Autostore {
 		std::string binName{ "namenotassigned!" };
 		std::string locationName{ "namenotassigned!" };
 
-		void binFillerWithdata(long long int binid_)
+		void binFillerWithdata(int i_, int j_, int k_, long long int binid_)
 		{
 			binId = binid_;
 			binName = "BinNO." + std::to_string(binid_);
+			xLocation = i_;
+			yLocation = j_;
+			zLocation = k_;
 		}
 
 		void binReset()
@@ -120,7 +129,6 @@ namespace Autostore {
 			locationId = -1;
 			locationName = "namenotassigned!";
 		}
-
 
 	};
 
@@ -194,7 +202,25 @@ namespace Autostore {
 	class retrivalTask {
 	public:
 
+		retrivalTask(std::vector<port>& portsVector, 
+			std::vector<firstRobot>& firstRobotsVector, 
+			std::vector<secondRobot>& secondRobotsVector, 
+			std::vector<bin>& binsVector, 
+			std::vector<std::vector<std::vector<Autostore::gridLocation>>>& gridLocationVector)
+			:
+			portsVector_(portsVector), 
+			firstRobotsVector_(firstRobotsVector), 
+			secondRobotsVector_(secondRobotsVector), 
+			binsVector_(binsVector), 
+			gridLocationVector_(gridLocationVector) {}
+
 		///////////////////////////
+		bin* binToRetrive_;
+		bin binToRetrive;
+
+		port selectedPort;
+		firstRobot selectedfirstRobot;
+
 		long long int id{ -1 };
 		
 		int minCostRobotToBin{ 1000000000 };
@@ -204,44 +230,28 @@ namespace Autostore {
 
 		int directionCost{ 0 };
 
+		int numOfBinToRelocate{ 0 };
+
 		
 		///////////////////////////
 
-		std::vector<port>* mainPortsVector{};
-		std::vector<firstRobot>* mainFirstRobotsVector{};
-		std::vector<secondRobot>* mainSecondRobotsVector{};
-		std::vector<bin>* mainBinsVector{};
-		std::vector<std::vector<std::vector<Autostore::gridLocation>>>* mainGridLocationVector;
+		//std::vector<port>* mainPortsVector{};
+		//std::vector<firstRobot>* mainFirstRobotsVector{};
+		//std::vector<secondRobot>* mainSecondRobotsVector{};
+		//std::vector<bin>* mainBinsVector{};
+		//std::vector<std::vector<std::vector<Autostore::gridLocation>>>* mainGridLocationVector;
 
-		std::vector<port> portsVector_;
-		std::vector<firstRobot> firstRobotsVector_;
-		std::vector<secondRobot> secondRobotsVector_;
-		std::vector<bin> binsVector_;
-		std::vector<std::vector<std::vector<Autostore::gridLocation>>> gridLocationVector_;
-
-		std::vector<port> portsVector;
-		std::vector<firstRobot> firstRobotsVector;
-		std::vector<secondRobot> secondRobotsVector;
-		std::vector<bin> binsVector;
-		std::vector<std::vector<std::vector<Autostore::gridLocation>>> gridLocationVector;
+		std::vector<port> &portsVector_;
+		std::vector<firstRobot> &firstRobotsVector_;
+		std::vector<secondRobot> &secondRobotsVector_;
+		std::vector<bin> &binsVector_;
+		std::vector<std::vector<std::vector<Autostore::gridLocation>>> &gridLocationVector_;
 
 		constantsAutostore constants;
 
-		bin binToRetrive;
-		port selectedPort;
-		firstRobot selectedfirstRobot;
 
 
-		void vectorsFiller() {
-
-			portsVector_ = (*mainPortsVector);
-			firstRobotsVector_ = (*mainFirstRobotsVector);
-			secondRobotsVector_ = (*mainSecondRobotsVector);
-			binsVector_ = (*mainBinsVector);
-			gridLocationVector_ = (*mainGridLocationVector);
-
-		}
-		
+	
 		void reset() {
 
 			id = -1;
@@ -261,7 +271,7 @@ namespace Autostore {
 
 			int Cost_{ 0 };
 
-			for (auto& robot : firstRobotsVector) {
+			for (auto& robot : firstRobotsVector_) {
 
 				Cost_ = manhattanCostRobot(robot);
 				//std::cout << Cost_ << " ";
@@ -279,7 +289,7 @@ namespace Autostore {
 			std::cout << "Selected Robot:  " <<
 				"Id:" << selectedfirstRobot.id <<
 				" x:" << selectedfirstRobot.xLocation <<
-				" y:" << selectedfirstRobot.yLocation <<"\n";
+				" y:" << selectedfirstRobot.yLocation <<"    ";
 
 		}
 
@@ -287,7 +297,7 @@ namespace Autostore {
 			
 			int Cost_{ 0 };
 			
-			for (auto& port : portsVector) {
+			for (auto& port : portsVector_) {
 
 				int Cost_ = manhattanCostPort(port);
 				//std::cout << Cost_ << " ";
@@ -316,6 +326,141 @@ namespace Autostore {
 			return{ abs(binToRetrive.xLocation - port_.xLocation) + abs(binToRetrive.yLocation - port_.yLocation) };
 		};
 
+
+
+
+
+
+		
+
+
+
+
+
+
+
+
+
+		double cycleTime()
+		{
+			std::cout << "\nrobotToBin ... ";
+			auto robotToBinCycleTime_ = robotToBinCycleTime();
+			std::cout << "robotToBinCycleTime: " << robotToBinCycleTime_ << "\n\n";
+
+
+			auto elevatingCycleTime_ = elevatingCycleTime();
+			std::cout << "\nelevatingCycleTime: " << elevatingCycleTime_ << "\n";
+
+			std::cout << "\nrobotAndBinToPort ... \n";
+			auto binToPortCycleTime_ = binToPortCycleTime();
+			std::cout << "robotAndBinToPortCycleTime: " << binToPortCycleTime_ << "\n\n";
+
+			//****************************************************************
+			auto binX{ binToRetrive.xLocation };//bin to relocate
+			auto binY{ binToRetrive.yLocation };
+			auto binZ{ binToRetrive.zLocation };
+
+			auto binId = binToRetrive.binId;
+
+
+			gridLocationVector_[binX][binY][binZ].binId = -1;
+			gridLocationVector_[binX][binY][binZ].isFilledWithBin = false;
+
+			binsVector_[binId].xLocation = -1;
+			binsVector_[binId].yLocation = -1;
+			binsVector_[binId].zLocation = -1;
+
+			binsVector_[binId].locationId = -1;
+			binsVector_[binId].locationName = "namenotassigned!";
+
+			//*****************************************************************
+
+			return robotToBinCycleTime_ + elevatingCycleTime_ + binToPortCycleTime_;
+		};
+
+		//***********************************************************************************
+		double robotToBinCycleTime() {
+
+			AStar::Generator pathObject;
+			pathObject.setWorldSize({ constants.xLenghOfWarehouse, constants.yLenghOfWarehouse });
+
+			auto binX_ = binToRetrive.xLocation;
+			auto binY_ = binToRetrive.yLocation;
+
+			auto robotX_ = selectedfirstRobot.xLocation;
+			auto robotY_ = selectedfirstRobot.yLocation;
+
+			auto pathRobotToBin = pathObject.findPath({ robotX_, robotY_ }, { binX_, binY_ });
+#if 0
+			std::cout << "path robot to bin------------------------------------------------------------------ \n";
+			for (auto& coordinate : pathRobotToBin) {
+				std::cout << coordinate.x << "\t";
+			}
+
+			std::cout << "\n";
+			for (auto& coordinate : pathRobotToBin) {
+				std::cout << coordinate.y << "\t";
+		}
+
+#endif
+			auto robotToBinCost = onGridRobotMovementCycleTime(pathRobotToBin);
+
+
+			//change location of robot---------------------------------------------
+#if 0
+			firstRobotsVector_[selectedfirstRobot.id].xLocation = binX_;
+			firstRobotsVector_[selectedfirstRobot.id].yLocation = binY_;
+ #endif
+			//---------------------------------------------------------------------
+
+			return robotToBinCost;
+	};
+
+		double binToPortCycleTime() {
+
+
+			AStar::Generator pathObject;
+			pathObject.setWorldSize({ constants.xLenghOfWarehouse, constants.yLenghOfWarehouse });
+
+			auto binX_ = binToRetrive.xLocation;
+			auto binY_ = binToRetrive.yLocation;
+
+			auto portX_ = selectedPort.xLocation;
+			auto portY_ = selectedPort.yLocation;
+
+			auto pathBinToPort = pathObject.findPath({ binX_, binY_ }, { portX_, portY_ });
+
+			//---------------------------------------------------------------------
+#if 0
+			std::cout << "\npathBinToPort----------------------------------------------------------------------\n";
+			for (auto& coordinate : pathBinToPort) {
+				std::cout << coordinate.x << "\t";
+			}
+
+			std::cout << "\n";
+			for (auto& coordinate : pathBinToPort) {
+				std::cout << coordinate.y << "\t";
+			}
+#endif
+			auto binToPortCost = onGridRobotMovementCycleTime(pathBinToPort);
+
+
+			//change location of robot and bin---------------------------------------------
+
+#if 0
+			firstRobotsVector_[selectedfirstRobot.id].xLocation = portX_;
+			firstRobotsVector_[selectedfirstRobot.id].yLocation = portY_;
+
+			gridLocationVector_[binToRetrive.xLocation][binToRetrive.yLocation][binToRetrive.zLocation].gridReset();
+			binsVector_[binToRetrive.binId].binReset();
+ #endif
+
+
+			//---------------------------------------------------------------------
+			//std::cout << "\n";
+
+			return binToPortCost;
+		}
 
 		double onGridRobotMovementCycleTime(const AStar::CoordinateList path_) {
 
@@ -405,136 +550,36 @@ namespace Autostore {
 
 			return totalCost;
 		};
+		//************************************************************************************
 
+
+		
+		
+		double elevatingCycleTime() {
+
+			auto elevatingCells = constants.zLenghOfWarehouse - binToRetrive.zLocation + 1;
+			double cycleTime = elevatingCells * constants.towardZCellTime;
+			cycleTime = cycleTime + constants.lockUnlockTime;
+			
+			goalBinIsDirectAccess();
+
+			if (directAccessToBin) {
+				std::cout << "\ndirectAccessToBin\n";
+				return cycleTime;
+			}
+			else {
+				return cycleTime + reLocationCycleTime();
+			}
+		}
+
+		//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 		void goalBinIsDirectAccess() {
 
 			auto x_ = binToRetrive.xLocation;
 			auto y_ = binToRetrive.yLocation;
 			auto z_ = binToRetrive.zLocation + 1;// plus one
 
-			directAccessToBin = ((gridLocationVector[x_][y_][z_].binId == -1) ? true : false);
-
-		}
-
-		bin findTopBin(int x_, int y_) {
-
-			//std::cout<<"findTopBin: " << x_ << " " << y_ << "\n";
-			if (x_ >= 0 && y_ >= 0 && 
-				x_ <= constants.xLenghOfWarehouse -1 && 
-				y_ <= constants.yLenghOfWarehouse - 1 &&
-				gridLocationVector_[x_][y_][0].binId !=-1
-
-				) {
-
-
-				for (auto& bin : gridLocationVector_[x_][y_]) {
-					//std::cout << bin.binId << " " << bin.locationName << "jppppp\n";
-					if (bin.binId == -1) {
-						return binsVector_[gridLocationVector_[x_][y_][bin.zLocation - 1].binId];
-					}
-					else if (bin.binId == -1 || bin.zLocation == constants.zLenghOfWarehouse - 1) {
-						return binsVector_[gridLocationVector_[x_][y_][bin.zLocation].binId];;
-					}
-					//else if (bin.binId == -1 || bin.zLocation == constants.zLenghOfWarehouse - 1) {
-					//	return binsVector_[gridLocationVector_[x_][y_][bin.zLocation].binId];;
-					//}
-
-				}
-			}
-			throw std::runtime_error("Not In Range");
-			
-		}
-
-
-
-		gridLocation bestLocationForRelocation() {
-			
-			// Define the search pattern for the 8 surrounding cells and their cost
-			int directions[8][3] = { 
-				{-1, 0, 1}, {1, 0, 1}, {0, -1, 1}, 
-				{0, 1, 1}, {-1, -1, 3},{-1, 1, 3}, 
-				{1, -1, 3}, {1, 1, 3} 
-			};
-
-			
-			int binX = binToRetrive.xLocation;
-			int binY = binToRetrive.yLocation;
-
-			bin newTopbin_;
-			double cost_{};
-
-				
-			double lowestCost = 1000000000000000.0;
-			auto bestLocation = gridLocationVector_[0][0][0];
-
-			//std::cout << "binX " << binX << " binY" << binY << "\n";
-
-			for (auto& dir : directions) {
-
-
-				int newX = binX + dir[0];
-				int newY = binY + dir[1];
-
-
-
-				if (newX < 0 || newY < 0 || 
-					newX > constants.xLenghOfWarehouse - 1 || 
-					newY >= constants.yLenghOfWarehouse - 1 ||
-					gridLocationVector_[newX][newY][0].binId == -1
-					//(newX == constants.xLenghOfWarehouse / 2 && newY == 0) ||
-					//(newX == 0 && newY == constants.yLenghOfWarehouse / 2) ||
-					//(newX == constants.xLenghOfWarehouse -1  && newY == constants.yLenghOfWarehouse / 2)
-					) 
-				{ continue; }
-
-				newTopbin_ = findTopBin(newX, newY);
-
-
-
-
-
-				int newZ = newTopbin_.zLocation + 1;
-				
-
-				if ((newZ <= constants.zLenghOfWarehouse-1)) {
-
-					if (newX > 0 && newX < constants.xLenghOfWarehouse - 1 &&
-						newY > 0 && newY < constants.yLenghOfWarehouse - 1 &&
-						(gridLocationVector_[newX][newY][0].binId != -1) && //for excluded grid location
-						(gridLocationVector_[newX][newY][newZ].binId == -1)) {
-
-						//std::cout << "innnnnnnnnnnnnnnnnnn\n";
-						//std::cout << "newX " << newX << " newy" << newY << " newz" << newZ <<"\n";
-
-
-						auto degradingCells = constants.zLenghOfWarehouse - (newZ);
-						double cycleTime = (degradingCells * constants.hightOfBin) / constants.robotPickOrDepositeVelocity;
-						cycleTime = cycleTime + constants.lockUnlockTime;
-
-						cost_ = cycleTime + dir[2]; // dir[2] is the cost of relocation on top grid
-
-
-
-						if (cost_ < lowestCost) {
-							//std::cout << "\ninnnnn" << cost_ << " ";
-							lowestCost = cost_;
-							bestLocation = gridLocationVector_[newX][newY][newZ];
-							directionCost = dir[2];
-						}
-
-					}
-					else {
-						//std::cout << "direction excluded\n";
-						continue;
-						
-					}
-				}
-			}
-			
-			//std::cout << "top bin z" << findTopBin(bestLocation.xLocation, bestLocation.yLocation).zLocation ;
-			std::cout << "\nBestLocation: " << bestLocation.locationName;
-			return bestLocation;
-
+			directAccessToBin = ((gridLocationVector_[x_][y_][z_].isFilledWithBin == false) ? true : false);
 
 		}
 
@@ -552,15 +597,18 @@ namespace Autostore {
 			int newZ{};
 
 
+			double cycleTime{ 0 };
+			int numOfElevatingCellsBinXBinY{ 0 }, numOfDepositCellsNewXNewY{ 0 };
+			bin topBinForRelocationNum, topBin;
 
 
-			bin topBin;
-			topBin = findTopBin(binX, binY);
-			double cycleTime{0};
-			int numOfBinToRelocate = topBin.zLocation - binToRetrive.zLocation ;
-			int numOfElevatingCellsBinXBinY{0}, numOfDepositCellsNewXNewY{0};
-
-			std::cout << "numOfBinToRelocate: " << numOfBinToRelocate <<"";
+			topBinForRelocationNum = findTopBin(binX, binY);
+			numOfBinToRelocate = topBinForRelocationNum.zLocation - binToRetrive.zLocation;
+			if (numOfBinToRelocate < 0) {
+				std::cout << "";
+				topBinForRelocationNum = findTopBin(binX, binY);
+			}
+			std::cout << "numOfBinToRelocate: " << numOfBinToRelocate << "";
 
 
 
@@ -574,12 +622,12 @@ namespace Autostore {
 				int newZ{ bestLocation.zLocation };
 
 
-				//elevating cycle time fot top bin on goal x and y column
-				topBin = findTopBin(binX, binY);
-				binZ = topBin.zLocation;
+				//elevating cycle time for top bin on goal x and y column
+				auto binToRelocate = findTopBin(binX, binY);
+				binZ = binToRelocate.zLocation;
 
-				numOfElevatingCellsBinXBinY = constants.zLenghOfWarehouse - binZ;
-				cycleTime = cycleTime + (numOfElevatingCellsBinXBinY * constants.hightOfBin) / constants.robotPickOrDepositeVelocity;
+				numOfElevatingCellsBinXBinY = constants.zLenghOfWarehouse - binZ + 1;
+				cycleTime = cycleTime + numOfElevatingCellsBinXBinY * constants.towardZCellTime;
 				cycleTime = cycleTime + constants.lockUnlockTime;
 
 
@@ -594,167 +642,179 @@ namespace Autostore {
 
 
 				// depositCells cycle time
-				numOfDepositCellsNewXNewY = constants.zLenghOfWarehouse - newZ;
-				cycleTime = cycleTime + (numOfDepositCellsNewXNewY * constants.hightOfBin) / constants.robotPickOrDepositeVelocity;
+				numOfDepositCellsNewXNewY = constants.zLenghOfWarehouse - newZ + 1;
+				cycleTime = cycleTime + numOfDepositCellsNewXNewY * constants.towardZCellTime;
 				cycleTime = cycleTime + constants.lockUnlockTime;
 
 
 
 
+				//*********************change location of bin*************************
+				binsVector_[binToRelocate.binId].xLocation = newX;
+				binsVector_[binToRelocate.binId].yLocation = newY;
+				binsVector_[binToRelocate.binId].zLocation = newZ;
 
+				binsVector_[binToRelocate.binId].locationId = bestLocation.locationId;
+				binsVector_[binToRelocate.binId].locationName = bestLocation.locationName;
 
+				//**********************grid reset**************************************
+				gridLocationVector_[binX][binY][binZ].binId = -1;
+				gridLocationVector_[binX][binY][binZ].isFilledWithBin = false;
 
-
-				// Change Location of Robot
-				//firstRobotsVector_[selectedfirstRobot.id].xLocation = bestLocation.xLocation;
-				//firstRobotsVector_[selectedfirstRobot.id].yLocation = bestLocation.yLocation;
-
-				//Change Location of Bin
-
-				auto binid = topBin.binId;
-
-				gridLocationVector_[binX][binY][binZ].gridReset();
-				binsVector_[binid].binReset();
-
-
-
-				binsVector_[binid].xLocation = newX;
-				binsVector_[binid].yLocation = newY;
-				binsVector_[binid].zLocation = newZ;
-
-				binsVector_[binid].locationId = gridLocationVector_[newX][newY][newZ].locationId;
-				binsVector_[binid].locationName = gridLocationVector_[newX][newY][newZ].locationName;
-
-
-				gridLocationVector_[newX][newY][newZ].binId = binid;
+				gridLocationVector_[newX][newY][newZ].binId = binToRelocate.binId;
 				gridLocationVector_[newX][newY][newZ].isFilledWithBin = true;
 
-				std::cout << "  cycletime: " << cycleTime<<"";
+				//auto binid = topBin.binId;
+								//gridLocationVector_[binX][binY][binZ].gridReset();
+								//if (binToRetrive.xLocation == 8 && binToRetrive.yLocation == 22 && binToRetrive.xLocation == 9) {
+				//	std::cout << "";
+				//
+								//binsVector_[binid].xLocation = -1;
+				//binsVector_[binid].yLocation = -1;
+				//binsVector_[binid].zLocation = -1;
+								//binsVector_[binid].locationId = -1;
+				//binsVector_[binid].locationName = "namenotassigned!";
+								//gridLocationVector_[binX][binY][binZ].binId = -1;
+				//gridLocationVector_[binX][binY][binZ].isFilledWithBin = false;
+								//binsVector_[binid].xLocation = newX;
+				//binsVector_[binid].yLocation = newY;
+				//binsVector_[binid].zLocation = newZ;
+								//binsVector_[binid].locationId = gridLocationVector_[newX][newY][newZ].locationId;
+				//binsVector_[binid].locationName = gridLocationVector_[newX][newY][newZ].locationName;
+								//gridLocationVector_[newX][newY][newZ].binId = binid;
+				//gridLocationVector_[newX][newY][newZ].isFilledWithBin = true;
+								//std::cout << "cycletime: " << cycleTime << "";
 
 			}
-			
-			
-
-
-
 
 			return cycleTime;
 		};
 
-		double elevatingCycleTime() {
+		bin findTopBin(int x_, int y_) {
 
-			auto elevatingCells = constants.zLenghOfWarehouse - binToRetrive.zLocation;
-			double cycleTime = (elevatingCells * constants.hightOfBin) / constants.robotPickOrDepositeVelocity;
-			cycleTime = cycleTime + constants.lockUnlockTime;
-			
-			goalBinIsDirectAccess();
+			//std::cout<<"findTopBin: " << x_ << " " << y_ << "\n";
+			//if (x_ >= 0 && y_ >= 0 && 
+			//	x_ <= constants.xLenghOfWarehouse -1 && 
+			//	y_ <= constants.yLenghOfWarehouse - 1 &&
+			//	gridLocationVector_[x_][y_][0].isFilledWithBin == true
+						//	) {
 
-			if (directAccessToBin) {
-				std::cout << "\ndirectAccessToBin\n";
-				return cycleTime;
+			for (auto& location : gridLocationVector_[x_][y_]) {
+
+
+				if (location.isFilledWithBin == false) {
+					auto binid = gridLocationVector_[x_][y_][(location.zLocation) - 1].binId;
+					auto& bin = binsVector_[binid];
+					//std::cout << "\n";
+					return bin;
+				}
+
+
+				else if (location.isFilledWithBin == true && location.zLocation == constants.zLenghOfWarehouse - 1) {
+					return binsVector_[gridLocationVector_[x_][y_][location.zLocation].binId];;
+				}
+
+				//else if (bin.binId == -1 || bin.zLocation == constants.zLenghOfWarehouse - 1) {
+				//	return binsVector_[gridLocationVector_[x_][y_][bin.zLocation].binId];;
+				//}
 			}
-			else {
-				return cycleTime + reLocationCycleTime();
-			}
-		}
+			//}
+			//throw std::runtime_error("Not In Range");
 
-		double robotToBinCycleTime() {
-
-			AStar::Generator pathObject;
-			pathObject.setWorldSize({ constants.xLenghOfWarehouse, constants.yLenghOfWarehouse });
-
-			auto binX_ = binToRetrive.xLocation;
-			auto binY_ = binToRetrive.yLocation;
-
-			auto robotX_ = selectedfirstRobot.xLocation;
-			auto robotY_ = selectedfirstRobot.yLocation;
-
-			auto pathRobotToBin = pathObject.findPath({ robotX_, robotY_ }, { binX_, binY_ });
-#if 0
-			std::cout << "path robot to bin------------------------------------------------------------------ \n";
-			for (auto& coordinate : pathRobotToBin) {
-				std::cout << coordinate.x << "\t";
-			}
-
-			std::cout << "\n";
-			for (auto& coordinate : pathRobotToBin) {
-				std::cout << coordinate.y << "\t";
-			}
-
-#endif
-			auto robotToBinCost = onGridRobotMovementCycleTime(pathRobotToBin);
-
-
-			//change location of robot---------------------------------------------
-			firstRobotsVector_[selectedfirstRobot.id].xLocation = binX_;
-			firstRobotsVector_[selectedfirstRobot.id].yLocation = binY_;
-			//---------------------------------------------------------------------
-
-			return robotToBinCost;
-		}
-
-		double binToPortCycleTime() {
-
-
-			AStar::Generator pathObject;
-			pathObject.setWorldSize({ constants.xLenghOfWarehouse, constants.yLenghOfWarehouse });
-
-			auto binX_ = binToRetrive.xLocation;
-			auto binY_ = binToRetrive.yLocation;
-
-			auto robotX_ = selectedfirstRobot.xLocation;
-			auto robotY_ = selectedfirstRobot.yLocation;
-
-			auto portX_ = selectedPort.xLocation;
-			auto portY_ = selectedPort.yLocation;
-
-			auto pathBinToPort = pathObject.findPath({ binX_, binY_ }, { portX_, portY_ });
-
-			//---------------------------------------------------------------------
-#if 0
-			std::cout << "\npathBinToPort----------------------------------------------------------------------\n";
-			for (auto& coordinate : pathBinToPort) {
-				std::cout << coordinate.x << "\t";
-			}
-
-			std::cout << "\n";
-			for (auto& coordinate : pathBinToPort) {
-				std::cout << coordinate.y << "\t";
-			}
-#endif
-			auto binToPortCost = onGridRobotMovementCycleTime(pathBinToPort);
-
-
-			//change location of robot and bin---------------------------------------------
-			firstRobotsVector_[selectedfirstRobot.id].xLocation = portX_;
-			firstRobotsVector_[selectedfirstRobot.id].yLocation = portY_;
-
-			binsVector_[binToRetrive.binId].xLocation = portX_;
-			binsVector_[binToRetrive.binId].yLocation = portY_;
-			binsVector_[binToRetrive.binId].zLocation = -1;
-
-			//---------------------------------------------------------------------
-			//std::cout << "\n";
-
-			return binToPortCost;
-		}
-
-		double cycleTime()
-		{
-			std::cout << "\nrobotToBin ... ";
-			auto robotToBinCycleTime_ = robotToBinCycleTime();
-			std::cout << "robotToBinCycleTime: " << robotToBinCycleTime_ <<"\n\n";
-
-
-			auto elevatingCycleTime_ = elevatingCycleTime();
-			std::cout << "\nelevatingCycleTime: " << elevatingCycleTime_ << "\n";
-
-			std::cout << "\nrobotAndBinToPort ... \n";
-			auto binToPortCycleTime_ = binToPortCycleTime();
-			std::cout << "robotAndBinToPortCycleTime: " << binToPortCycleTime_ << "\n\n";
-
-			return robotToBinCycleTime_ + elevatingCycleTime_ + binToPortCycleTime_;
 		};
+
+		gridLocation bestLocationForRelocation() {
+			
+			// Define the search pattern for the 8 surrounding cells and their cost
+			int directions[8][3] = { 
+				{-1, 0, 1}, {1, 0, 1}, 
+				{0, -1, 1}, {0, 1, 1}, 
+				{-1, -1, 3},{-1, 1, 3}, 
+				{1, -1, 3}, {1, 1, 3} 
+			};
+
+			
+			int binX = binToRetrive.xLocation;
+			int binY = binToRetrive.yLocation;
+
+			bin newTopbin_;
+			double cost_{};
+
+				
+			double lowestCost = 1000000000000000.0;
+			auto& bestLocation = gridLocationVector_[0][0][0];
+
+			//std::cout << "binX " << binX << " binY" << binY << "\n";
+
+			for (auto& dir : directions) {
+
+
+				int newX = binX + dir[0];
+				int newY = binY + dir[1];
+
+
+
+				if (newX >= 0 && newX <= constants.xLenghOfWarehouse - 1 &&
+					newY >= 0 && newY <= constants.yLenghOfWarehouse - 1 &&
+					(gridLocationVector_[newX][newY][0].isFilledWithBin == true)){ //for excluded grid location)
+
+					//(newX < 0 || newY < 0 ||
+					//newX > constants.xLenghOfWarehouse - 1 ||
+					//newY >= constants.yLenghOfWarehouse - 1 ||
+					//gridLocationVector_[newX][newY][0].binId == -1
+					//(newX == constants.xLenghOfWarehouse / 2 && newY == 0) ||
+					//(newX == 0 && newY == constants.yLenghOfWarehouse / 2) ||
+					//(newX == constants.xLenghOfWarehouse -1  && newY == constants.yLenghOfWarehouse / 2)){
+
+					int newZ = findTopBin(newX, newY).zLocation + 1;
+					if (newZ == constants.zLenghOfWarehouse - 1) { continue; }
+
+					auto degradingCells = constants.zLenghOfWarehouse - newZ;
+
+
+					double cycleTime = 0;
+					cycleTime = degradingCells * constants.towardZCellTime;
+					cycleTime = cycleTime + constants.lockUnlockTime + dir[2]; // dir[2] is the cost of relocation on top grid
+
+					cost_ = cycleTime;
+
+
+
+
+					if (cost_ < lowestCost) {
+						//std::cout << "\ninnnnn" << cost_ << " ";
+						lowestCost = cost_;
+						bestLocation = gridLocationVector_[newX][newY][newZ];
+						directionCost = dir[2];
+					}
+
+					//if (newX > 0 && newX < constants.xLenghOfWarehouse - 1 &&
+					//	newY > 0 && newY < constants.yLenghOfWarehouse - 1 &&
+					//	(gridLocationVector_[newX][newY][0].binId != -1) && //for excluded grid location
+					//	(gridLocationVector_[newX][newY][newZ].binId == -1)) {
+											//std::cout << "innnnnnnnnnnnnnnnnnn\n";
+						//std::cout << "newX " << newX << " newy" << newY << " newz" << newZ <<"\n";
+
+				}
+				else {
+					//std::cout << "direction excluded\n";
+					continue;
+
+				}
+
+				//std::cout << "top bin z" << findTopBin(bestLocation.xLocation, bestLocation.yLocation).zLocation ;
+				//std::cout << "\nBestLocation: " << bestLocation.locationName;
+				
+
+			}
+			return bestLocation;
+		}
+
+
+
+
+
+
 		
 
 	
@@ -762,6 +822,6 @@ namespace Autostore {
 
 
 };
-#endif 
+
 
 
