@@ -209,7 +209,7 @@ int main()
 	//the evaluation of warehouse throughput
 	while (!queueOfBinRetrival.empty())
 	{	
-		std::cout << "\n\nRetriving " << queueOfBinRetrival[0].locationName << " is on Track     ";
+		std::cout << "\n\nRetriving " << queueOfBinRetrival[0].locationName << " is on Track";
 		if (queueOfBinRetrival[0].xLocation == 0 && queueOfBinRetrival[0].yLocation == 0) {
 			queueOfBinRetrival.erase(queueOfBinRetrival.begin());
 		}
@@ -237,14 +237,15 @@ int main()
 
 		firstRobotsVector[retrivalTaskObject.selectedfirstRobot.id].time =
 			firstRobotsVector[retrivalTaskObject.selectedfirstRobot.id].time + cycleTime; // change robot time
-
+		
+		firstRobotsVector[retrivalTaskObject.selectedfirstRobot.id].numOfTasks++;
 
 
 
 		std::cout << "Finished Retriving " << queueOfBinRetrival[0].locationName << 
 			". CycleTime: " << cycleTime << " Robot Id: " << retrivalTaskObject.selectedfirstRobot.id
 			<< " RobotTime: " << firstRobotsVector[retrivalTaskObject.selectedfirstRobot.id].time<<
-			"-----------------------------------------------------------";
+			"\n-----------------------------------------------------------";
 		
 		
 		//finishedRetriveTaskVector.push_back(finishedRetriveTaskVector[retrivalTaskId]);
@@ -257,12 +258,12 @@ int main()
 
 #if 1
 		if (firstRobotsVector[retrivalTaskObject.selectedfirstRobot.id].time >= (shiftHours * 60 * 60)) {
-			std::cout << "\n\n\n************************One Hour is Passed**************************\n\n\n";
+			std::cout << "\n\n\n************************Shift Hours is Passed**************************\n\n\n";
 
 			std::cout << "Percentage of retrived Bins" << (finishedRetriveTaskVector.size() / maxNumOfBins) * 100 << "\n";
 
 			for (auto robot : firstRobotsVector) {
-				std::cout << "Robot Id:" << robot.id << " Robot time: " << robot.time << "\n";
+				std::cout << "Robot Id:" << robot.id << " Robot time: " << robot.time << " Robot Tasks: " << robot.numOfTasks << "\n";
 			}
 
 			std::cout << "total num of retrived Bin: " << finishedRetriveTaskVector.size()
@@ -270,8 +271,22 @@ int main()
 			break;
 		}
 		
-#endif
+#endif	
+		if (retrivalTaskId % numOfFirstRobots == 1) {
+			for (auto& robot : firstRobotsVector) {
+				robot.isBusy = false;
+			}
+			//break;
+		}
 		retrivalTaskId++;
+
+		
+
+
+
+
+
+
 		
 	}
 
