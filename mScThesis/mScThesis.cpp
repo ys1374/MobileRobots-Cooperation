@@ -46,9 +46,9 @@ int PortLocations[3][3] = {
 
 int main()
 {	
-
-
-	//port objects---------------------------------
+	 
+	//***we need to fill the warehouse with robots and bins objects*****
+	// 	//port objects---------------------------------
 	std::vector<Autostore::port> portsVector;// Vector of class objects
 	Autostore::port portObject;
 
@@ -60,12 +60,6 @@ int main()
 
 		portsVector.push_back(portObject);
 	}
-	//---------------------------------------------
-
-
-	 
-	 
-	//we need to fill the warehouse with robots and bins objects*************************************
 
 	//filling first robot-----------------------
 	std::vector<Autostore::firstRobot> firstRobotsVector;// Vector of class objects
@@ -73,50 +67,37 @@ int main()
 
 	for (int i = 0; i < numOfFirstRobots; i++) {
 		firstRobotObject.nameFillerFirstRobot(i);
-		firstRobotObject.xLocation = generateRandomNumber(xLenghOfWarehouse);
-		firstRobotObject.yLocation = generateRandomNumber(yLenghOfWarehouse);
+		firstRobotObject.xLocation = generateRandomNumber(xLenghOfWarehouse-1);
+		firstRobotObject.yLocation = generateRandomNumber(yLenghOfWarehouse-1);
 		
-		// inserting objects to vector 
 		firstRobotsVector.push_back(firstRobotObject);
-
-		//std::cout << firstRobotsVector[i].id << "\t" << firstRobotsVector[i].name << "\n";
 	}
-	//------------------------------------------
-
 
 	//second robot------------------------------
 	std::vector<Autostore::secondRobot> secondRobotsVector;// Vector of class objects
 	Autostore::secondRobot secondRobotObject;
 
 	for (int i = 0; i < numOfSecondRobots; i++) {
-
 		secondRobotObject.nameFillerSecondRobot(i);
-		// inserting objects to vector 
-		secondRobotsVector.push_back(secondRobotObject);
+		secondRobotObject.xLocation = generateRandomNumber(xLenghOfWarehouse-1);
+		secondRobotObject.yLocation = generateRandomNumber(yLenghOfWarehouse-1);
 
-		//std::cout << secondRobotsVector[i].id << "\t" << secondRobotsVector[i].name << "\n";
+		secondRobotsVector.push_back(secondRobotObject);
 	}
-	//------------------------------------------
 
 	//bins--------------------------------------
 	std::vector<Autostore::bin> binsVector;// Vector of class objects
-	Autostore::bin binsObject;
-	//------------------------------------------
-
+	Autostore::bin binsObject; // fins will fill with locations
 
 	//creating gridbins location on grid--------
 	std::vector<std::vector<std::vector<Autostore::gridLocation>>> gridLocationVector(
 		xLenghOfWarehouse,
 		std::vector<std::vector<Autostore::gridLocation>>(
-			yLenghOfWarehouse,
-			std::vector<Autostore::gridLocation>(
-				zLenghOfWarehouse
-				)
-			)
-	);// Vector of class objects
+		yLenghOfWarehouse,
+		std::vector<Autostore::gridLocation>(
+		zLenghOfWarehouse)));// Vector of class objects
 
 	Autostore::gridLocation gridLocationObject;//creating object
-	//------------------------------------------
 
 
 	
@@ -177,6 +158,8 @@ int main()
 		}
 	}
 
+	
+	//write robots location to file
 	fillFirstRobotLocation(firstRobotsVector, "firstRobots_locations.txt");
 	fillSecondRobotLocation(secondRobotsVector, "secondRobots_locations.txt");
 
@@ -218,7 +201,7 @@ int main()
 
 
 	
-	//the evaluation throughput in one type
+	//the evaluation throughput in one type ---------------------------------
 	while ((!queueOfBinRetrival.empty()) && (!useSecondRobot))
 	{	
 		std::cout << "\n\nRetriving " << queueOfBinRetrival[0].locationName << " is on Track";
@@ -303,8 +286,8 @@ int main()
 
 
 
-#if 0
-	//the evaluation throughput in two type
+#if 1
+	//the evaluation throughput in two type -------------------------------------
 	while ((!queueOfBinRetrival.empty()) && (useSecondRobot))
 	{
 		std::cout << "\n\nRetriving " << queueOfBinRetrival[0].locationName << " is on Track";
