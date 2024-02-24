@@ -144,6 +144,7 @@ namespace Autostore {
 		bool isBusy{ false };
 
 		double time{ 0 };
+		double numOfTasks{ 0 };
 
 		std::string name{ "Name Not Assigned!" };
 
@@ -271,20 +272,20 @@ namespace Autostore {
 
 			int Cost_{ 0 };
 
-			for (auto& robot : firstRobotsVector_) {
+			for (auto& robot : firstRobotsVector_ ) {
 
 				Cost_ = manhattanCostRobot(robot);
-				//std::cout << Cost_ << " ";
 
-				if (Cost_ < minCostRobotToBin) {
+				if (Cost_ < minCostRobotToBin && robot.isBusy == false) {
 					
-					//std::cout << "inR ";
 					minCostRobotToBin = Cost_;
-					selectedfirstRobot = robot;
+					selectedfirstRobot = robot;			
 
 				}
 
 			}
+
+			firstRobotsVector_[selectedfirstRobot.id].isBusy = true;
 
 			std::cout << "Selected Robot:  " <<
 				"Id:" << selectedfirstRobot.id <<
@@ -351,7 +352,7 @@ namespace Autostore {
 			auto elevatingCycleTime_ = elevatingCycleTime();
 			std::cout << "\nelevatingCycleTime: " << elevatingCycleTime_ << "\n";
 
-			std::cout << "\nrobotAndBinToPort ... \n";
+			std::cout << "\nrobotAndBinToPort ... ";
 			auto binToPortCycleTime_ = binToPortCycleTime();
 			std::cout << "robotAndBinToPortCycleTime: " << binToPortCycleTime_ << "\n\n";
 
