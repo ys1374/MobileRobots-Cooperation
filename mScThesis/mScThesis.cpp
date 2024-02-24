@@ -7,6 +7,7 @@
 
 const unsigned int filledPercentOfWarehouse{ 80 }; //in %
 double shiftHours{ 8 };
+bool useSecondRobot{ false };
 
 // ************** if changed these 3 delete files************************
 const unsigned int xLenghOfWarehouse{ 30 }; //max x size of gird
@@ -15,6 +16,7 @@ const unsigned int zLenghOfWarehouse{ 20 }; //max num of bins in a column
 const unsigned int numOfFirstRobots{ 2 };
 const unsigned int numOfSecondRobots{ 3 };
 const unsigned int numOfPorts{ 3 };
+
 //***********************************************************************
 
 
@@ -31,20 +33,20 @@ unsigned int maxNumOfBins{ xLenghOfWarehouse * yLenghOfWarehouse * zLenghOfWareh
 
 //functions-----------------------
 int generateRandomNumber(int max);
-void saveVectorToFile(const std::vector<Autostore::bin>& vec, const std::string& filename);
 void fillQueueOfBinRetrival(std::vector<Autostore::bin>& queueOfBinRetrival, const std::string& filename, std::vector<Autostore::bin> binsVector_);
 void fillFirstRobotLocation(std::vector<Autostore::firstRobot>& firstRobotsVector_, const std::string& filename_);
+void fillSecondRobotLocation(std::vector<Autostore::secondRobot>& secondRobotsVector_, const std::string& filename_);
 //--------------------------------
-
+int PortLocations[3][3] = {
+{xLenghOfWarehouse / 2 , 0, 0},
+{0 , yLenghOfWarehouse / 2 , 1},
+{xLenghOfWarehouse - 1, yLenghOfWarehouse / 2, 2}
+};
 
 
 int main()
 {	
-	int PortLocations[3][3] = {
-	{xLenghOfWarehouse / 2 , 0, 0},
-	{0 , yLenghOfWarehouse / 2 , 1},
-	{xLenghOfWarehouse - 1, yLenghOfWarehouse / 2, 2}
-	};
+
 
 	//port objects---------------------------------
 	std::vector<Autostore::port> portsVector;// Vector of class objects
@@ -118,7 +120,7 @@ int main()
 
 
 	
-	//fill locations and bins--------------------------------------------------------------------------------
+	//fill locations and bins-------------------------------------------------
 	for (int k = 0; k < zLenghOfWarehouse; k++) {
 		for (int j = 0; j < yLenghOfWarehouse; j++) {
 			for (int i = 0; i < xLenghOfWarehouse; i++) {
@@ -175,39 +177,49 @@ int main()
 		}
 	}
 
-	fillFirstRobotLocation(firstRobotsVector, "robots_locations.txt");
+	fillFirstRobotLocation(firstRobotsVector, "firstRobots_locations.txt");
+	fillSecondRobotLocation(secondRobotsVector, "secondRobots_locations.txt");
+
 
 	std::cout << "Objects on Warehouse all set!\n";
-
-	//-------------------------------------------------------------------------------------------------------
 
 
 	//make a Queue for retrival from shufling the binsVector-----------------
 	std::vector<Autostore::bin> queueOfBinRetrival;
 	queueOfBinRetrival.reserve(maxNumOfBins);
 
-	// read file if file exist fill the retrival queue with file if not it generate new from binsVector shuffle
 	fillQueueOfBinRetrival(queueOfBinRetrival, "queueOfBinRetrival.txt", binsVector);
-	//-----------------------------------------------------------------------
-
 
 
 	//filling retrivalTaskObject--------------------------------------------------------------
 	Autostore::retrivalTask retrivalTaskObject(portsVector, firstRobotsVector, secondRobotsVector, binsVector, gridLocationVector);
 	std::vector<Autostore::retrivalTask> finishedRetriveTaskVector;
 
-
 	retrivalTaskObject.constants.xLenghOfWarehouse = xLenghOfWarehouse;
 	retrivalTaskObject.constants.yLenghOfWarehouse = yLenghOfWarehouse;
 	retrivalTaskObject.constants.zLenghOfWarehouse = zLenghOfWarehouse;
-	//retrivalTaskObject.constants.hightOfBin = hightOfBin;
-	//---------------------------------------------------------------------------------------
-
 	
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	
-	//the evaluation of warehouse throughput
-	while (!queueOfBinRetrival.empty())
+	//the evaluation throughput in one type
+	while ((!queueOfBinRetrival.empty()) && (!useSecondRobot))
 	{	
 		std::cout << "\n\nRetriving " << queueOfBinRetrival[0].locationName << " is on Track";
 		if (queueOfBinRetrival[0].xLocation == 0 && queueOfBinRetrival[0].yLocation == 0) {
@@ -219,7 +231,7 @@ int main()
 		retrivalTaskObject.reset();
 		retrivalTaskObject.id = retrivalTaskId;
 		retrivalTaskObject.binToRetrive = binsVector[queueOfBinRetrival[0].binId];
-		retrivalTaskObject.binToRetrive_ = &binsVector[queueOfBinRetrival[0].binId];
+		//retrivalTaskObject.binToRetrive_ = &binsVector[queueOfBinRetrival[0].binId];
 
 
 		retrivalTaskObject.firstRobotSelection();
@@ -279,18 +291,97 @@ int main()
 			//break;
 		}
 		retrivalTaskId++;
-
 		
-
-
-
-
-
-
 		
 	}
 
 
+
+
+
+
+
+
+
+#if 0
+	//the evaluation throughput in two type
+	while ((!queueOfBinRetrival.empty()) && (useSecondRobot))
+	{
+		std::cout << "\n\nRetriving " << queueOfBinRetrival[0].locationName << " is on Track";
+		if (queueOfBinRetrival[0].xLocation == 0 && queueOfBinRetrival[0].yLocation == 0) {
+			queueOfBinRetrival.erase(queueOfBinRetrival.begin());
+		}
+
+
+
+		retrivalTaskObject.reset();
+		retrivalTaskObject.id = retrivalTaskId;
+		retrivalTaskObject.binToRetrive = binsVector[queueOfBinRetrival[0].binId];
+		//retrivalTaskObject.binToRetrive_ = &binsVector[queueOfBinRetrival[0].binId];
+
+
+		retrivalTaskObject.firstRobotSelection();
+		retrivalTaskObject.portSelection();
+
+
+
+		double cycleTime = retrivalTaskObject.cycleTime();
+
+
+
+
+
+
+
+		firstRobotsVector[retrivalTaskObject.selectedfirstRobot.id].time =
+			firstRobotsVector[retrivalTaskObject.selectedfirstRobot.id].time + cycleTime; // change robot time
+
+		firstRobotsVector[retrivalTaskObject.selectedfirstRobot.id].numOfTasks++;
+
+
+
+		std::cout << "Finished Retriving " << queueOfBinRetrival[0].locationName <<
+			". CycleTime: " << cycleTime << " Robot Id: " << retrivalTaskObject.selectedfirstRobot.id
+			<< " RobotTime: " << firstRobotsVector[retrivalTaskObject.selectedfirstRobot.id].time <<
+			"\n-----------------------------------------------------------";
+
+
+		//finishedRetriveTaskVector.push_back(finishedRetriveTaskVector[retrivalTaskId]);
+		queueOfBinRetrival.erase(queueOfBinRetrival.begin());
+
+
+
+		finishedRetriveTaskVector.push_back(retrivalTaskObject);
+
+
+#if 1
+		if (firstRobotsVector[retrivalTaskObject.selectedfirstRobot.id].time >= (shiftHours * 60 * 60)) {
+			std::cout << "\n\n\n************************Shift Hours is Passed**************************\n\n\n";
+
+			std::cout << "Percentage of retrived Bins" << (finishedRetriveTaskVector.size() / maxNumOfBins) * 100 << "\n";
+
+			for (auto robot : firstRobotsVector) {
+				std::cout << "Robot Id:" << robot.id << " Robot time: " << robot.time << " Robot Tasks: " << robot.numOfTasks << "\n";
+			}
+
+			std::cout << "total num of retrived Bin: " << finishedRetriveTaskVector.size()
+				<< " throughput/hour: " << finishedRetriveTaskVector.size() / shiftHours;
+			break;
+		}
+
+#endif	
+		if (retrivalTaskId % numOfFirstRobots == 1) {
+			for (auto& robot : firstRobotsVector) {
+				robot.isBusy = false;
+			}
+			//break;
+		}
+		retrivalTaskId++;
+
+
+	}
+
+#endif
 
 
 
@@ -306,10 +397,14 @@ int main()
 		std::cout << "\n\nEmpty Retrival Queue!\n";
 	}
 	else{ std::cout << "\n\nRetrival Queue Not Empty Or Something Wrong!\n"; }
-	
 
 
-	//std::cout << queueOfBinRetrival[0].binName << "\t" << queueOfBinRetrival[0].locationName << "\n";
+
+
+
+
+
+
 	return 0;
 }
 

@@ -70,7 +70,7 @@ void fillQueueOfBinRetrival(std::vector<Autostore::bin>& queueOfBinRetrival, con
 
 ///////for first robot-----------------------------------
 
-void saveRobotLocations(const std::vector<Autostore::firstRobot>& firstRobotsVector_, const std::string& filename_) {
+void saveFirstRobotLocations(const std::vector<Autostore::firstRobot>& firstRobotsVector_, const std::string& filename_) {
     std::ofstream fileOut(filename_);
     if (!fileOut) {
         throw std::runtime_error("Cannot open file for writing");
@@ -82,7 +82,7 @@ void saveRobotLocations(const std::vector<Autostore::firstRobot>& firstRobotsVec
 }
 
 
-void loadRobotLocations(std::vector<Autostore::firstRobot>& firstRobotsVector_, const std::string& filename) {
+void loadFirstRobotLocations(std::vector<Autostore::firstRobot>& firstRobotsVector_, const std::string& filename) {
     std::ifstream fileIn(filename);
     if (!fileIn) {
         throw std::runtime_error("Cannot open file for reading");
@@ -103,13 +103,58 @@ void loadRobotLocations(std::vector<Autostore::firstRobot>& firstRobotsVector_, 
 void fillFirstRobotLocation(std::vector<Autostore::firstRobot>& firstRobotsVector_, const std::string& filename_) {
     if (fileExists(filename_)) {
         // File exists, load vector from file
-        loadRobotLocations(firstRobotsVector_, filename_);
+        loadFirstRobotLocations(firstRobotsVector_, filename_);
         std::cout << "Loaded robots location from file." << std::endl;
     }
     else {
         // Optionally, save the newly filled vector to file
-        saveRobotLocations(firstRobotsVector_, filename_);
+        saveFirstRobotLocations(firstRobotsVector_, filename_);
         std::cout << "Filled robots regularly and saved to file." << std::endl;
+    }
+}
+
+
+//second robot ----------------------------------------------------------------------------------------------------
+void saveSecondRobotLocations(const std::vector<Autostore::secondRobot>& secondRobotsVector_, const std::string& filename_) {
+    std::ofstream fileOut(filename_);
+    if (!fileOut) {
+        throw std::runtime_error("Cannot open file for writing");
+    }
+
+    for (auto& robot : secondRobotsVector_) {
+        fileOut << robot.id << " " << robot.xLocation << " " << robot.yLocation << "\n";
+    }
+}
+
+
+void loadSecondRobotLocations(std::vector<Autostore::secondRobot>& secondRobotsVector_, const std::string& filename) {
+    std::ifstream fileIn(filename);
+    if (!fileIn) {
+        throw std::runtime_error("Cannot open file for reading");
+    }
+
+    //robots.clear(); // Clear existing data
+    int x, y, id;
+
+    while (fileIn >> id >> x >> y) {
+        secondRobotsVector_[id].xLocation = x;
+        secondRobotsVector_[id].yLocation = y;
+        //robots.emplace_back(x, y, id);
+        //std::cout << id;
+    }
+}
+
+
+void fillSecondRobotLocation(std::vector<Autostore::secondRobot>& secondRobotsVector_, const std::string& filename_) {
+    if (fileExists(filename_)) {
+        // File exists, load vector from file
+        loadSecondRobotLocations(secondRobotsVector_, filename_);
+        std::cout << "Loaded 2nd robots location from file." << std::endl;
+    }
+    else {
+        // Optionally, save the newly filled vector to file
+        saveSecondRobotLocations(secondRobotsVector_, filename_);
+        std::cout << "Filled 2nd robots regularly and saved to file." << std::endl;
     }
 }
 

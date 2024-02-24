@@ -216,7 +216,6 @@ namespace Autostore {
 			gridLocationVector_(gridLocationVector) {}
 
 		///////////////////////////
-		bin* binToRetrive_;
 		bin binToRetrive;
 
 		port selectedPort;
