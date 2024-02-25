@@ -7,7 +7,7 @@
 
 const unsigned int filledPercentOfWarehouse{ 80 }; //in %
 double shiftHours{ 8 };
-bool useSecondRobot{ false };
+bool useSecondRobot{ true };
 
 // ************** if changed these 3 delete files************************
 const unsigned int xLenghOfWarehouse{ 30 }; //max x size of gird
@@ -184,22 +184,6 @@ int main()
 	
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 	
 	//the evaluation throughput in one type ---------------------------------
 	while ((!queueOfBinRetrival.empty()) && (!useSecondRobot))
@@ -222,7 +206,7 @@ int main()
 		
 		
 
-		double cycleTime = retrivalTaskObject.cycleTime();
+		double cycleTime = retrivalTaskObject.oneTypeCycleTime();
 
 
 
@@ -286,6 +270,23 @@ int main()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #if 1
 	//the evaluation throughput in two type -------------------------------------
 	while ((!queueOfBinRetrival.empty()) && (useSecondRobot))
@@ -304,11 +305,12 @@ int main()
 
 
 		retrivalTaskObject.firstRobotSelection();
+		retrivalTaskObject.secondRobotSelection();
 		retrivalTaskObject.portSelection();
 
 
-
-		double cycleTime = retrivalTaskObject.cycleTime();
+		break;
+		double cycleTime = retrivalTaskObject.oneTypeCycleTime();
 
 
 
