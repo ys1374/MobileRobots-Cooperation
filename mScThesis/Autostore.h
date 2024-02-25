@@ -47,7 +47,7 @@ namespace Autostore {
 		int yLenghOfWarehouse{ -1 };
 		int zLenghOfWarehouse{ -1 };
 
-		//double hightOfBin{ 0 };
+		int secondRobotCapacity{ 0 };
 
 	};
 	
@@ -828,9 +828,10 @@ namespace Autostore {
 				auto topbinZLocation = findTopBin(binToRetrive.xLocation, binToRetrive.yLocation).zLocation;
 				auto numOfTopBins = constants.zLenghOfWarehouse - topbinZLocation - 1;
 
-				for (int i = 0; i <= numOfTopBins / 5; i++) {
+				for (int i = 0; i <= numOfTopBins / constants.secondRobotCapacity ; i++) {
 
-					if ((i * 5) < numOfTopBins && numOfTopBins <= ((i * 5) + 5)) {
+					if ((i * 5) < numOfTopBins && 
+						numOfTopBins <= ((i * constants.secondRobotCapacity) + constants.secondRobotCapacity)) {
 
 						//std::cout << "numOfTopBins" << numOfTopBins;
 						if (size(secondRobotsVector_) >= (i + 1)) { numOfSecondRobot = (i + 1); }
@@ -955,10 +956,16 @@ namespace Autostore {
 		}
 
 		double twoTypeElevatingCycleTime() {
-			double secondRobotcost_;
-			double firstRobotcost_;
+			double secondRobotcost_{0.0};
+			double firstRobotcost_{0.0};
 
-			//top
+			auto topbinZLocation = findTopBin(binToRetrive.xLocation, binToRetrive.yLocation).zLocation;
+			auto numOfTopBins = constants.zLenghOfWarehouse - topbinZLocation;
+			auto numOfSecondRobot = size(selectedsecondRobotsVector);
+
+
+
+			return 0.0;
 		}
 
 

@@ -15,6 +15,7 @@ const unsigned int yLenghOfWarehouse{ 30 }; //max y size of gird
 const unsigned int zLenghOfWarehouse{ 20 }; //max num of bins in a column
 const unsigned int numOfFirstRobots{ 2 };
 const unsigned int numOfSecondRobots{ 3 };
+const unsigned int secondRobotCapacity{ 5 };
 const unsigned int numOfPorts{ 3 };
 
 //***********************************************************************
@@ -181,6 +182,8 @@ int main()
 	retrivalTaskObject.constants.xLenghOfWarehouse = xLenghOfWarehouse;
 	retrivalTaskObject.constants.yLenghOfWarehouse = yLenghOfWarehouse;
 	retrivalTaskObject.constants.zLenghOfWarehouse = zLenghOfWarehouse;
+
+	retrivalTaskObject.constants.secondRobotCapacity = secondRobotCapacity;
 	
 
 
@@ -309,9 +312,9 @@ int main()
 		retrivalTaskObject.portSelection();
 
 
+		
+		double cycleTime = retrivalTaskObject.twoTypeCycleTime();
 		break;
-		double cycleTime = retrivalTaskObject.oneTypeCycleTime();
-
 
 
 
