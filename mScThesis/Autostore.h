@@ -949,7 +949,7 @@ namespace Autostore {
 			//*****************************************************************
 
 
-			auto twoTypeLoweringCycleTime_ = twoTypeLoweringCycleTime();/////////////////////////////////////
+			auto twoTypeLoweringCycleTime_ = twoTypeLoweringCycleTime();
 			//std::cout << "\ntwoTypeLoweringCycleTime: " << twoTypeLoweringCycleTime_;
 
 			auto totalCycleTime = 
