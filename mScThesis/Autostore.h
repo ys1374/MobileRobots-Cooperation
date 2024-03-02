@@ -32,7 +32,7 @@ namespace Autostore {
 		//Robot velocity(m/s)
 		const double robotVelocity{ 2 };
 		//Robot pick / deposit velocity(m/s)
-		const double robotPickOrDepositeVelocity{ 1.6 };
+		const double firstRobotPickOrDepositeVelocity{ 1.6 };
 		//Wheel exchange time( seconds )
 		const double wheelExchangeTime{ 1 };
 		//toward x time
@@ -40,7 +40,7 @@ namespace Autostore {
 		//toward y time
 		const double towardYCellTime{ deltaY / robotVelocity };
 		//toward z time
-		const double towardZCellTime{ deltaZ / robotPickOrDepositeVelocity };
+		const double firstRobotTowardZCellTime{ deltaZ / firstRobotPickOrDepositeVelocity };
 
 		//
 		int xLenghOfWarehouse{ -1 };
@@ -48,6 +48,17 @@ namespace Autostore {
 		int zLenghOfWarehouse{ -1 };
 
 		int secondRobotCapacity{ 0 };
+
+		const double secondRobotPickOrDepositeVelocityUnloaded{ 1.6 };
+		const double secondRobotPickOrDepositeVelocityAfterLoaed{ 1 };
+		const double secondRobotPickOrDepositeVelocityLoading{ 0.5 };
+
+
+
+		const double secondRobotTowardZCellTimeUnloaded{ deltaZ / secondRobotPickOrDepositeVelocityUnloaded };
+		const double secondRobotTowardZCellTimeAfterLoaed{ deltaZ / secondRobotPickOrDepositeVelocityAfterLoaed };
+		const double secondRobotTowardZCellTimeLoading{ deltaZ / secondRobotPickOrDepositeVelocityLoading };
+		const double changeLocationSecondRobotLoaded{ 5 };
 
 	};
 	
@@ -165,7 +176,8 @@ namespace Autostore {
 		int yLocation{0}; //arz 
 
 		int id{0};
-		std::vector<int> binId{};
+		std::vector<bin> bins{};
+
 		bool isBusy{ false };
 
 		std::string name{ "namenotassigned!" };
@@ -293,10 +305,10 @@ namespace Autostore {
 
 			firstRobotsVector_[selectedfirstRobot.id].isBusy = true;
 
-			std::cout << "Selected Robot:  " <<
-				"Id:" << selectedfirstRobot.id <<
-				" x:" << selectedfirstRobot.xLocation <<
-				" y:" << selectedfirstRobot.yLocation <<"    ";
+			std::cout << "FirstRobot:" <<
+				"Id[" << selectedfirstRobot.id << "]" <<
+				"x[" << selectedfirstRobot.xLocation << "]" <<
+				"y[" << selectedfirstRobot.yLocation << "]";
 
 		}
 
@@ -318,10 +330,10 @@ namespace Autostore {
 		
 			}
 
-			std::cout << "Selected Port:  " <<
-				"Id:" << selectedPort.id <<
-				" x:" << selectedPort.xLocation <<
-				" y:" << selectedPort.yLocation << "\n";
+			std::cout << " Port:  " <<
+				"Id[" << selectedPort.id << "]" <<
+				"x[" << selectedPort.xLocation << "]" <<
+				"y[" << selectedPort.yLocation << "]";
 
 		}
 
@@ -345,22 +357,22 @@ namespace Autostore {
 
 
 
-		//one type@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+		//1111111111111111111111111111111111111111111111111111111111111111111111111111 type
 
 
 		double oneTypeCycleTime()
 		{
-			std::cout << "\nrobotToBin ... ";
+			//std::cout << "\nrobotToBin ... ";
 			auto firstRobotToBinCycleTime_ = firstRobotToBinCycleTime();
-			std::cout << "robotToBinCycleTime: " << firstRobotToBinCycleTime_ << "\n\n";
+			//std::cout << "robotToBinCycleTime: " << firstRobotToBinCycleTime_ << "\n\n";
 
 
 			auto elevatingCycleTime_ = oneTypeElevatingCycleTime();
-			std::cout << "\nelevatingCycleTime: " << elevatingCycleTime_ << "\n";
+			//std::cout << "\nelevatingCycleTime: " << elevatingCycleTime_ << "\n";
 
-			std::cout << "\nrobotAndBinToPort ... ";
+			//std::cout << "\nrobotAndBinToPort ... ";
 			auto binToPortCycleTime_ = binToPortCycleTime();
-			std::cout << "robotAndBinToPortCycleTime: " << binToPortCycleTime_ << "\n\n";
+			//std::cout << "robotAndBinToPortCycleTime: " << binToPortCycleTime_ << "\n\n";
 
 			//****************************************************************
 			auto binX{ binToRetrive.xLocation };//bin to relocate
@@ -384,8 +396,10 @@ namespace Autostore {
 			firstRobotsVector_[selectedfirstRobot.id].xLocation = selectedPort.xLocation;
 			firstRobotsVector_[selectedfirstRobot.id].yLocation = selectedPort.yLocation;
 			//*****************************************************************
+			auto totalCycleTime{ firstRobotToBinCycleTime_ + elevatingCycleTime_ + binToPortCycleTime_ };
+			std::cout << " FirstCycleTime: " << totalCycleTime;
 
-			return firstRobotToBinCycleTime_ + elevatingCycleTime_ + binToPortCycleTime_;
+			return totalCycleTime;
 		};
 
 		//***********************************************************************************
@@ -500,8 +514,8 @@ namespace Autostore {
 
 					if (previousDirection == Direction::towardX) {
 
-						std::cout << "\nDirection changed at (" << path_[i - 1].x << ", " << path_[i - 1].y << ")";
-						std::cout << " after " << movesCount << " moves towardX. ";
+						//std::cout << "\nDirection changed at (" << path_[i - 1].x << ", " << path_[i - 1].y << ")";
+						//std::cout << " after " << movesCount << " moves towardX. ";
 
 						if (movesCount >= 6) { beforeCost = 4 + ((movesCount - 6) * constants.towardXCellTime); }
 						else if (movesCount <= 3) { beforeCost = 2; }//1, 2, 3
@@ -510,8 +524,8 @@ namespace Autostore {
 					}
 					else if (previousDirection == Direction::towardY) {
 
-						std::cout << "\nDirection changed at (" << path_[i - 1].x << ", " << path_[i - 1].y << ")";
-						std::cout << " after " << movesCount << " moves towardY. ";
+						//std::cout << "\nDirection changed at (" << path_[i - 1].x << ", " << path_[i - 1].y << ")";
+						//std::cout << " after " << movesCount << " moves towardY. ";
 
 						if (movesCount >= 8) { beforeCost = 4 + ((movesCount - 8) * constants.towardYCellTime); }
 						else if (movesCount <= 4) { beforeCost = 2; }
@@ -534,7 +548,7 @@ namespace Autostore {
 
 				if (currentDirection == Direction::towardX) {
 
-					std::cout << "Then Moved " << movesCount << " locations towardX." << "\n";
+					//std::cout << "Then Moved " << movesCount << " locations towardX." << "\n";
 
 					if (movesCount >= 6) { aftereCost = 4 + ((movesCount - 6) * constants.towardXCellTime); }
 					else if (movesCount <= 3) { aftereCost = 2; }
@@ -543,7 +557,7 @@ namespace Autostore {
 				}
 				else if (currentDirection == Direction::towardY) {
 
-					std::cout << "Then Moved " << movesCount << " locations towardY." << "\n";
+					//std::cout << "Then Moved " << movesCount << " locations towardY." << "\n";
 
 					if (movesCount >= 8) { aftereCost = 4 + ((movesCount - 8) * constants.towardYCellTime); }
 					else if (movesCount <= 4) { aftereCost = 2; }
@@ -559,19 +573,16 @@ namespace Autostore {
 		};
 		//************************************************************************************
 
-
-		
-		
 		double oneTypeElevatingCycleTime() {
 
 			auto elevatingCells = constants.zLenghOfWarehouse - binToRetrive.zLocation + 1;
-			double cycleTime = elevatingCells * constants.towardZCellTime;
+			double cycleTime = elevatingCells * constants.firstRobotTowardZCellTime;
 			cycleTime = cycleTime + constants.lockUnlockTime;
 			
 			goalBinIsDirectAccess();
 
 			if (directAccessToBin) {
-				std::cout << "\ndirectAccessToBin\n";
+				//std::cout << "\ndirectAccessToBin\n";
 				return cycleTime;
 			}
 			else {
@@ -592,7 +603,7 @@ namespace Autostore {
 
 		double reLocationCycleTime() {
 
-			std::cout << "No direct Access\n" << "relocation in progress ...\n";
+			//std::cout << "No direct Access\n" << "relocation in progress ...\n";
 
 
 			int binX{ binToRetrive.xLocation };//bin to relocate
@@ -615,7 +626,7 @@ namespace Autostore {
 				std::cout << "";
 				topBinForRelocationNum = findTopBin(binX, binY);
 			}
-			std::cout << "numOfBinToRelocate: " << numOfBinToRelocate << "";
+			//std::cout << "numOfBinToRelocate: " << numOfBinToRelocate << "";
 
 
 
@@ -634,7 +645,7 @@ namespace Autostore {
 				binZ = binToRelocate.zLocation;
 
 				numOfElevatingCellsBinXBinY = constants.zLenghOfWarehouse - binZ + 1;
-				cycleTime = cycleTime + numOfElevatingCellsBinXBinY * constants.towardZCellTime;
+				cycleTime = cycleTime + numOfElevatingCellsBinXBinY * constants.firstRobotTowardZCellTime;
 				cycleTime = cycleTime + constants.lockUnlockTime;
 
 
@@ -650,7 +661,7 @@ namespace Autostore {
 
 				// depositCells cycle time
 				numOfDepositCellsNewXNewY = constants.zLenghOfWarehouse - newZ + 1;
-				cycleTime = cycleTime + numOfDepositCellsNewXNewY * constants.towardZCellTime;
+				cycleTime = cycleTime + numOfDepositCellsNewXNewY * constants.firstRobotTowardZCellTime;
 				cycleTime = cycleTime + constants.lockUnlockTime;
 
 
@@ -780,7 +791,7 @@ namespace Autostore {
 
 
 					double cycleTime = 0;
-					cycleTime = degradingCells * constants.towardZCellTime;
+					cycleTime = degradingCells * constants.firstRobotTowardZCellTime;
 					cycleTime = cycleTime + constants.lockUnlockTime + dir[2]; // dir[2] is the cost of relocation on top grid
 
 					cost_ = cycleTime;
@@ -818,15 +829,20 @@ namespace Autostore {
 		}
 
 
-		//two type@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+
+
+
+
+		//2222222222222222222222222222222222222222222222222222222222222222222222222222222 type
 
 		void secondRobotSelection() {
-
+			std::cout << " SecondRobot:";
 			int Cost_{ 0 };
 
 			if (!directAccessToBin) {
 				auto topbinZLocation = findTopBin(binToRetrive.xLocation, binToRetrive.yLocation).zLocation;
-				auto numOfTopBins = constants.zLenghOfWarehouse - topbinZLocation - 1;
+				auto numOfTopBins = topbinZLocation - binToRetrive.zLocation;
 
 				for (int i = 0; i <= numOfTopBins / constants.secondRobotCapacity ; i++) {
 
@@ -848,24 +864,30 @@ namespace Autostore {
 
 
 			for (int i = 0; i < numOfSecondRobot; i++) {
-				auto selectedSecondRobot = secondRobotsVector_[0];
+				int selectedSecondRobotId{-1};
+				auto minCost_{ 10000000000000 };
 
 				for (auto& robot : secondRobotsVector_) {
 
 					Cost_ = manhattanCostSecondRobot(robot);
 
-					if (Cost_ < minCostRobotToBin && robot.isBusy == false) {
+					if (Cost_ < minCost_ && robot.isBusy == false) {
 
-						minCostRobotToBin = Cost_;
-						selectedSecondRobot = robot;
+						minCost_ = Cost_;
+						selectedSecondRobotId = robot.id;
 
 					}
 
 				}
 
 				
-				selectedsecondRobotsVector.push_back(selectedSecondRobot);
-				secondRobotsVector_[selectedSecondRobot.id].isBusy = true;
+				
+				secondRobotsVector_[selectedSecondRobotId].isBusy = true;
+				selectedsecondRobotsVector.push_back(secondRobotsVector_[selectedSecondRobotId]);
+				std::cout <<
+					"Id[" << secondRobotsVector_[selectedSecondRobotId].id << "]" <<
+					"x[" << secondRobotsVector_[selectedSecondRobotId].xLocation << "]" <<
+					"y[" << secondRobotsVector_[selectedSecondRobotId].yLocation << "] ";
 
 			}
 
@@ -881,23 +903,23 @@ namespace Autostore {
 
 		double twoTypeCycleTime()
 		{
-			std::cout << "\n\n\n2nd robotToBin ... ";
 			auto secondRobotToBinCycleTime_ = secondRobotToBinCycleTime();
-			std::cout << "secondRobotToBinCycleTime: " << secondRobotToBinCycleTime_ ;
+			std::cout << "\nsecondRobotToBinCycleTime: " << secondRobotToBinCycleTime_ ;
 
-			auto twoTypeElevatingCycleTime_ = twoTypeElevatingCycleTime();
-			std::cout << "\ttwoTypeElevatingCycleTime_: " << twoTypeElevatingCycleTime_ ;
+			auto twoTypeElevatingCycleTime_ = twoTypeElevatingCycleTime();/////////////////////////////////////
+			std::cout << "\ntwoTypeElevatingCycleTime: " << twoTypeElevatingCycleTime_ ;
 
-			std::cout << "\t1st robotToBin ... ";
 			auto firstRobotToBinCycleTime_ = firstRobotToBinCycleTime();
-			std::cout << "firstRobotToBinCycleTime: " << firstRobotToBinCycleTime_ ;
+			std::cout << "\nfirstRobotToBinCycleTime: " << firstRobotToBinCycleTime_ ;
 
-
-			std::cout << "\trobotAndBinToPort ... ";
+			//std::cout << "\nrobotAndBinToPort ... ";
 			auto binToPortCycleTime_ = binToPortCycleTime();
-			std::cout << "robotAndBinToPortCycleTime: " << binToPortCycleTime_ << "\n\n";
+			std::cout << "\nrobotAndBinToPortCycleTime: " << binToPortCycleTime_;
+
+
 
 			//****************************************************************
+#if 1
 			auto binX{ binToRetrive.xLocation };//bin to relocate
 			auto binY{ binToRetrive.yLocation };
 			auto binZ{ binToRetrive.zLocation };
@@ -905,14 +927,14 @@ namespace Autostore {
 			auto binId = binToRetrive.binId;
 
 
-			gridLocationVector_[binX][binY][binZ].binId = -1;
+			gridLocationVector_[binX][binY][binZ].binId = -3;
 			gridLocationVector_[binX][binY][binZ].isFilledWithBin = false;
 
-			binsVector_[binId].xLocation = -1;
-			binsVector_[binId].yLocation = -1;
-			binsVector_[binId].zLocation = -1;
+			binsVector_[binId].xLocation = -3;
+			binsVector_[binId].yLocation = -3;
+			binsVector_[binId].zLocation = -3;
 
-			binsVector_[binId].locationId = -1;
+			binsVector_[binId].locationId = -3;
 			binsVector_[binId].locationName = "Retrived!";
 
 			firstRobotsVector_[selectedfirstRobot.id].xLocation = selectedPort.xLocation;
@@ -923,11 +945,22 @@ namespace Autostore {
 				secondRobotsVector_[selectedSecondRobot.id].yLocation = binY;
 			}
 
-
+#endif
 			//*****************************************************************
 
-			return firstRobotToBinCycleTime_ + secondRobotToBinCycleTime_ 
-				   + twoTypeElevatingCycleTime_ + binToPortCycleTime_;
+
+			auto twoTypeLoweringCycleTime_ = twoTypeLoweringCycleTime();/////////////////////////////////////
+			//std::cout << "\ntwoTypeLoweringCycleTime: " << twoTypeLoweringCycleTime_;
+
+			auto totalCycleTime = 
+				firstRobotToBinCycleTime_ +
+				secondRobotToBinCycleTime_ +
+				twoTypeElevatingCycleTime_ +
+				binToPortCycleTime_ +
+				twoTypeLoweringCycleTime_;
+
+			std::cout << " 2ndCycleTime: " << totalCycleTime;
+			return totalCycleTime;
 		};
 		//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -956,19 +989,159 @@ namespace Autostore {
 		}
 
 		double twoTypeElevatingCycleTime() {
-			double secondRobotcost_{0.0};
-			double firstRobotcost_{0.0};
+			//double secondRobotcost_{0.0};
+			//double firstRobotcost_{0.0};
 
 			auto topbinZLocation = findTopBin(binToRetrive.xLocation, binToRetrive.yLocation).zLocation;
-			auto numOfTopBins = constants.zLenghOfWarehouse - topbinZLocation;
+			auto numOfTopBins = topbinZLocation - binToRetrive.zLocation;
 			auto numOfSecondRobot = size(selectedsecondRobotsVector);
+			int numOfTopBinsLeft{ numOfTopBins };
+
+			//for goal bin
+			auto elevatingCells = constants.zLenghOfWarehouse - binToRetrive.zLocation + 1;
+			double cycleTime = elevatingCells * constants.firstRobotTowardZCellTime;
+			cycleTime = cycleTime + constants.lockUnlockTime;
 
 
 
-			return 0.0;
+
+			//for relocation bins
+			for (auto& robot : selectedsecondRobotsVector) {
+
+				topbinZLocation = findTopBin(binToRetrive.xLocation, binToRetrive.yLocation).zLocation;
+
+				auto loweringCellsUnloaded = constants.zLenghOfWarehouse - topbinZLocation;
+				auto loweringTimeUnloaded = loweringCellsUnloaded * constants.secondRobotTowardZCellTimeUnloaded;
+
+
+
+				int loweringCellsLoading{ 0 };
+				if (numOfTopBinsLeft >= constants.secondRobotCapacity) {
+					loweringCellsLoading = constants.secondRobotCapacity;
+				}
+				else if (numOfTopBinsLeft < constants.secondRobotCapacity) {
+					loweringCellsLoading = numOfTopBinsLeft;
+				}
+				auto loweringTimeLoading = loweringCellsLoading * constants.secondRobotTowardZCellTimeLoading;
+
+
+
+				auto elevatingCellsLoaded = loweringCellsUnloaded + loweringCellsLoading;
+				auto elevatingTimeLoaded = elevatingCellsLoaded * constants.secondRobotTowardZCellTimeAfterLoaed;
+
+
+				double cycleTime_ = 
+					loweringTimeUnloaded + loweringTimeLoading +
+					constants.lockUnlockTime + elevatingTimeLoaded +
+					constants.changeLocationSecondRobotLoaded;
+
+
+				cycleTime = cycleTime + cycleTime_;
+				
+				auto binX = binToRetrive.xLocation;
+				auto binY = binToRetrive.yLocation;
+				auto binZ = findTopBin(binX, binY).zLocation;
+
+				for (int i = 0; i < loweringCellsLoading; i++) {
+					auto binZ_ = binZ - i;
+
+					auto binid = gridLocationVector_[binX][binY][binZ_].binId;
+					auto& bin = binsVector_[binid];
+
+					
+					//*********************reset bin*************************
+					binsVector_[binid].xLocation = -2;
+					binsVector_[binid].yLocation = -2;
+					binsVector_[binid].zLocation = -2;
+
+					binsVector_[binid].locationId = -2;
+					binsVector_[binid].locationName = -2;
+					//**********************************************************
+					secondRobotsVector_[robot.id].bins.push_back(binsVector_[binid]);
+					robot.bins.push_back(binsVector_[binid]);
+					//**********************grid reset**************************************
+					gridLocationVector_[binX][binY][binZ_].binId = -2;
+					gridLocationVector_[binX][binY][binZ_].isFilledWithBin = false;
+
+				}
+				numOfTopBinsLeft = numOfTopBinsLeft - loweringCellsLoading;
+
+			}
+
+
+
+			return cycleTime;
 		}
 
+		double twoTypeLoweringCycleTime() {
 
+			auto topbinZLocation_ = findTopBin(binToRetrive.xLocation, binToRetrive.yLocation).zLocation;
+			auto numOfTopBins = topbinZLocation_ - binToRetrive.zLocation;
+			auto numOfSecondRobot = size(selectedsecondRobotsVector);
+			int numOfTopBinsLeft{ numOfTopBins };
+			double cycleTime{ 0.0 };
+
+
+
+
+			//for relocation bins
+			for (auto& robot : selectedsecondRobotsVector) {
+				
+				topbinZLocation_ = findTopBin(binToRetrive.xLocation, binToRetrive.yLocation).zLocation;
+
+				auto loweringCellsLoaded_ = constants.zLenghOfWarehouse - topbinZLocation_;
+				auto loweringTimeLoaded_ = loweringCellsLoaded_ * constants.secondRobotTowardZCellTimeAfterLoaed;
+
+
+				auto elevatingCellsUnoading_{ size(secondRobotsVector_[robot.id].bins) };
+				auto elevatingTimeUnoading_ = elevatingCellsUnoading_ * constants.secondRobotTowardZCellTimeLoading;
+
+
+
+				auto elevatingCellsUnloaded_ = loweringCellsLoaded_ - elevatingCellsUnoading_;
+				auto elevatingTimeUnoaded_ = elevatingCellsUnloaded_ * constants.secondRobotPickOrDepositeVelocityUnloaded;
+
+				cycleTime =
+					loweringTimeLoaded_ + elevatingTimeUnoading_ +
+					constants.lockUnlockTime + elevatingTimeUnoaded_ +
+					constants.changeLocationSecondRobotLoaded;
+
+
+				auto binX = binToRetrive.xLocation;
+				auto binY = binToRetrive.yLocation;
+				auto binZ = findTopBin(binX, binY).zLocation;
+
+				for (int i = 0; i < size(secondRobotsVector_[robot.id].bins); i++) {
+					auto binZ_ = binZ + i + 1;
+
+					auto binid = robot.bins[i].binId;
+					//auto& bin = binsVector_[binid];
+
+
+					//*********************reset bin*************************
+					binsVector_[binid].xLocation = binX;
+					binsVector_[binid].yLocation = binY;
+					binsVector_[binid].zLocation = binZ;
+
+					binsVector_[binid].locationId = gridLocationVector_[binX][binY][binZ_].locationId;
+					binsVector_[binid].locationName = gridLocationVector_[binX][binY][binZ_].locationName;
+					//**********************************************************
+					//secondRobotsVector_[robot.id].bins.erase(secondRobotsVector_[robot.id].bins.begin());
+					//**********************grid reset**************************************
+					gridLocationVector_[binX][binY][binZ_].binId = binsVector_[binid].binId;
+					gridLocationVector_[binX][binY][binZ_].isFilledWithBin = true;
+
+				}
+				secondRobotsVector_[robot.id].bins.clear();
+				secondRobotsVector_[robot.id].isBusy = false;
+				robot.isBusy = false;
+
+			}
+
+
+
+			return cycleTime;
+		}
 
 	
 	};
