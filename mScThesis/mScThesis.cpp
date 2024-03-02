@@ -83,6 +83,14 @@ int main()
 		secondRobotObject.xLocation = generateRandomNumber(xLenghOfWarehouse-1);
 		secondRobotObject.yLocation = generateRandomNumber(yLenghOfWarehouse-1);
 
+		secondRobotObject.id = i;
+
+		secondRobotObject.bins.reserve(secondRobotCapacity);
+		//Autostore::bin bin;
+		//for (int i = 0; i < secondRobotCapacity; i++) {
+		//	secondRobotObject.bins.push_back(bin);
+		//}
+
 		secondRobotsVector.push_back(secondRobotObject);
 	}
 
@@ -191,7 +199,7 @@ int main()
 	//the evaluation throughput in one type ---------------------------------
 	while ((!queueOfBinRetrival.empty()) && (!useSecondRobot))
 	{	
-		std::cout << "\n\nRetriving " << queueOfBinRetrival[0].locationName << " is on Track";
+		std::cout << "\n\nRetriving " << queueOfBinRetrival[0].locationName << " is on Track\n";
 		if (queueOfBinRetrival[0].xLocation == 0 && queueOfBinRetrival[0].yLocation == 0) {
 			queueOfBinRetrival.erase(queueOfBinRetrival.begin());
 		}
@@ -224,10 +232,10 @@ int main()
 
 
 
-		std::cout << "Finished Retriving " << queueOfBinRetrival[0].locationName << 
-			". CycleTime: " << cycleTime << " Robot Id: " << retrivalTaskObject.selectedfirstRobot.id
-			<< " RobotTime: " << firstRobotsVector[retrivalTaskObject.selectedfirstRobot.id].time<<
-			"\n-----------------------------------------------------------";
+		//std::cout << "Finished Retriving " << queueOfBinRetrival[0].locationName << 
+		//	". CycleTime: " << cycleTime << " Robot Id: " << retrivalTaskObject.selectedfirstRobot.id
+		//	<< " RobotTime: " << firstRobotsVector[retrivalTaskObject.selectedfirstRobot.id].time<<
+		//	"\n-----------------------------------------------------------";
 		
 		
 		//finishedRetriveTaskVector.push_back(finishedRetriveTaskVector[retrivalTaskId]);
@@ -294,9 +302,15 @@ int main()
 	//the evaluation throughput in two type -------------------------------------
 	while ((!queueOfBinRetrival.empty()) && (useSecondRobot))
 	{
-		std::cout << "\n\nRetriving " << queueOfBinRetrival[0].locationName << " is on Track";
+		std::cout << "\n\nRetriving " << queueOfBinRetrival[0].locationName << " is on Track\n";
+
 		if (queueOfBinRetrival[0].xLocation == 0 && queueOfBinRetrival[0].yLocation == 0) {
 			queueOfBinRetrival.erase(queueOfBinRetrival.begin());
+			continue;
+		}
+		if (queueOfBinRetrival[0].zLocation == 0) {
+			queueOfBinRetrival.erase(queueOfBinRetrival.begin());
+			continue;
 		}
 
 
@@ -328,12 +342,6 @@ int main()
 
 
 
-		std::cout << "Finished Retriving " << queueOfBinRetrival[0].locationName <<
-			". CycleTime: " << cycleTime << " Robot Id: " << retrivalTaskObject.selectedfirstRobot.id
-			<< " RobotTime: " << firstRobotsVector[retrivalTaskObject.selectedfirstRobot.id].time <<
-			"\n-----------------------------------------------------------";
-
-
 		//finishedRetriveTaskVector.push_back(finishedRetriveTaskVector[retrivalTaskId]);
 		queueOfBinRetrival.erase(queueOfBinRetrival.begin());
 
@@ -358,6 +366,8 @@ int main()
 		}
 
 #endif	
+
+
 		if (retrivalTaskId % numOfFirstRobots == 1) {
 			for (auto& robot : firstRobotsVector) {
 				robot.isBusy = false;
@@ -370,6 +380,26 @@ int main()
 	}
 
 #endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
