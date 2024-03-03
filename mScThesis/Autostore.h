@@ -940,7 +940,7 @@ namespace Autostore {
 			binsVector_[binId].zLocation = -3;
 
 			binsVector_[binId].locationId = -3;
-			binsVector_[binId].locationName = "Retrived!";
+			binsVector_[binId].locationName = "Retrived!-3";
 
 			firstRobotsVector_[selectedfirstRobot.id].xLocation = selectedPort.xLocation;
 			firstRobotsVector_[selectedfirstRobot.id].yLocation = selectedPort.yLocation;
@@ -1072,7 +1072,7 @@ namespace Autostore {
 					binsVector_[binid].zLocation = -2;
 
 					binsVector_[binid].locationId = -2;
-					binsVector_[binid].locationName = -2;
+					binsVector_[binid].locationName = "Retrived!";
 					//**********************************************************
 					secondRobotsVector_[robot.id].bins.push_back(binsVector_[binid]);
 					robot.bins.push_back(binsVector_[binid]);
@@ -1092,19 +1092,16 @@ namespace Autostore {
 
 		double twoTypeLoweringCycleTime() {
 
-			auto topbinZLocation_ = findTopBin(binToRetrive.xLocation, binToRetrive.yLocation).zLocation;
-			auto numOfTopBins = topbinZLocation_ - binToRetrive.zLocation;
-			auto numOfSecondRobot = size(selectedsecondRobotsVector);
-			int numOfTopBinsLeft{ numOfTopBins };
+			int topbinZLocation_{ 0 };
 			double cycleTime{ 0.0 };
-
-
-
-
 			//for relocation bins
-			for (auto& robot : selectedsecondRobotsVector) {
+			for (auto it = selectedsecondRobotsVector.rbegin(); it != selectedsecondRobotsVector.rend(); ++it) {
+				auto& robot = *it;
 				
-				topbinZLocation_ = findTopBin(binToRetrive.xLocation, binToRetrive.yLocation).zLocation;
+				auto binX = binToRetrive.xLocation;
+				auto binY = binToRetrive.yLocation;
+				auto binZ = findTopBin(binX, binY).zLocation;
+				topbinZLocation_ = binZ;
 
 				auto loweringCellsLoaded_ = constants.zLenghOfWarehouse - topbinZLocation_;
 				auto loweringTimeLoaded_ = loweringCellsLoaded_ * constants.secondRobotTowardZCellTimeAfterLoaed;
@@ -1116,29 +1113,31 @@ namespace Autostore {
 
 
 				auto elevatingCellsUnloaded_ = loweringCellsLoaded_ - elevatingCellsUnoading_;
-				auto elevatingTimeUnoaded_ = elevatingCellsUnloaded_ * constants.secondRobotPickOrDepositeVelocityUnloaded;
+				auto elevatingTimeUnloaded_ = elevatingCellsUnloaded_ * constants.secondRobotTowardZCellTimeUnloaded;
 
 				cycleTime =
-					loweringTimeLoaded_ + elevatingTimeUnoading_ +
-					constants.lockUnlockTime + elevatingTimeUnoaded_ +
+					cycleTime +
+					loweringTimeLoaded_ + 
+					constants.lockUnlockTime + 
+					elevatingTimeUnoading_ +
+					elevatingTimeUnloaded_ +
 					constants.changeLocationSecondRobotLoaded;
 
 
-				auto binX = binToRetrive.xLocation;
-				auto binY = binToRetrive.yLocation;
-				auto binZ = findTopBin(binX, binY).zLocation;
+
 
 				for (int i = 0; i < size(secondRobotsVector_[robot.id].bins); i++) {
 					auto binZ_ = binZ + i + 1;
 
-					auto binid = robot.bins[i].binId;
+					auto binid = robot.bins[size(secondRobotsVector_[robot.id].bins) - i - 1].binId;
+					//auto binid2 = robot.bins.back().binId;
 					//auto& bin = binsVector_[binid];
 
 
 					//*********************reset bin*************************
 					binsVector_[binid].xLocation = binX;
 					binsVector_[binid].yLocation = binY;
-					binsVector_[binid].zLocation = binZ;
+					binsVector_[binid].zLocation = binZ_;
 
 					binsVector_[binid].locationId = gridLocationVector_[binX][binY][binZ_].locationId;
 					binsVector_[binid].locationName = gridLocationVector_[binX][binY][binZ_].locationName;
@@ -1156,7 +1155,7 @@ namespace Autostore {
 			}
 
 
-
+			selectedsecondRobotsVector.clear();
 			return cycleTime;
 		}
 
