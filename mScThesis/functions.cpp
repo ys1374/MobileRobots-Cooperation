@@ -5,6 +5,9 @@ using uint = unsigned int;
 #include <random>
 #include <fstream>
 #include <vector>
+#include <sstream>
+
+
 
 
 int generateRandomNumber(int max_) {
@@ -127,8 +130,8 @@ void saveSecondRobotLocations(const std::vector<Autostore::secondRobot>& secondR
 }
 
 
-void loadSecondRobotLocations(std::vector<Autostore::secondRobot>& secondRobotsVector_, const std::string& filename) {
-    std::ifstream fileIn(filename);
+void loadSecondRobotLocations(std::vector<Autostore::secondRobot>& secondRobotsVector_, const std::string& filename_) {
+    std::ifstream fileIn(filename_);
     if (!fileIn) {
         throw std::runtime_error("Cannot open file for reading");
     }
@@ -159,3 +162,6 @@ void fillSecondRobotLocation(std::vector<Autostore::secondRobot>& secondRobotsVe
 }
 
 
+void fillExcelFileCycleTime(lxw_worksheet* worksheet, double cycleTime_, const int column_, const int row_) {
+    worksheet_write_number(worksheet, row_, column_, cycleTime_, NULL);
+}

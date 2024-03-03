@@ -10,6 +10,7 @@
 #include <vector>
 
 #include <optional>
+#include "xlsxwriter.h"
 
  
 
@@ -50,15 +51,15 @@ namespace Autostore {
 		int secondRobotCapacity{ 0 };
 
 		const double secondRobotPickOrDepositeVelocityUnloaded{ 1.6 };
-		const double secondRobotPickOrDepositeVelocityAfterLoaed{ 1 };
-		const double secondRobotPickOrDepositeVelocityLoading{ 0.5 };
+		const double secondRobotPickOrDepositeVelocityAfterLoaed{ 1.5 };
+		const double secondRobotPickOrDepositeVelocityLoading{ 1 };
 
 
 
 		const double secondRobotTowardZCellTimeUnloaded{ deltaZ / secondRobotPickOrDepositeVelocityUnloaded };
 		const double secondRobotTowardZCellTimeAfterLoaed{ deltaZ / secondRobotPickOrDepositeVelocityAfterLoaed };
 		const double secondRobotTowardZCellTimeLoading{ deltaZ / secondRobotPickOrDepositeVelocityLoading };
-		const double changeLocationSecondRobotLoaded{ 5 };
+		const double changeLocationSecondRobotLoaded{ 3 };
 
 	};
 	
@@ -396,7 +397,11 @@ namespace Autostore {
 			firstRobotsVector_[selectedfirstRobot.id].xLocation = selectedPort.xLocation;
 			firstRobotsVector_[selectedfirstRobot.id].yLocation = selectedPort.yLocation;
 			//*****************************************************************
-			auto totalCycleTime{ firstRobotToBinCycleTime_ + elevatingCycleTime_ + binToPortCycleTime_ };
+			auto totalCycleTime{ 
+				firstRobotToBinCycleTime_ + 
+				elevatingCycleTime_ + 
+				binToPortCycleTime_ };
+
 			std::cout << " FirstCycleTime: " << totalCycleTime;
 
 			return totalCycleTime;
@@ -952,9 +957,14 @@ namespace Autostore {
 			auto twoTypeLoweringCycleTime_ = twoTypeLoweringCycleTime();
 			//std::cout << "\ntwoTypeLoweringCycleTime: " << twoTypeLoweringCycleTime_;
 
+			auto robotToBinCycleTime_{ 0.0 };
+			if (firstRobotToBinCycleTime_ > secondRobotToBinCycleTime_) { robotToBinCycleTime_ = firstRobotToBinCycleTime_; }
+			else { robotToBinCycleTime_ = secondRobotToBinCycleTime_; }
+
+
 			auto totalCycleTime = 
-				firstRobotToBinCycleTime_ +
-				secondRobotToBinCycleTime_ +
+				
+				robotToBinCycleTime_ +
 				twoTypeElevatingCycleTime_ +
 				binToPortCycleTime_ +
 				twoTypeLoweringCycleTime_;
@@ -972,6 +982,7 @@ namespace Autostore {
 			auto binY_ = binToRetrive.yLocation;
 
 			double robotToBinCost{ 0.0 };
+			double maxRobotToBinTime{ 0.0 };
 
 			for (auto& selectedSecondRobot : selectedsecondRobotsVector) {
 
@@ -980,12 +991,18 @@ namespace Autostore {
 
 				auto pathRobotToBin = pathObject.findPath({ robotX_, robotY_ }, { binX_, binY_ });
 
-				robotToBinCost = robotToBinCost + onGridRobotMovementCycleTime(pathRobotToBin);
+				robotToBinCost =  onGridRobotMovementCycleTime(pathRobotToBin);
+
+				if (robotToBinCost > maxRobotToBinTime) {
+					maxRobotToBinTime = robotToBinCost;
+				}
+
+				
 
 			}
 
 
-			return robotToBinCost;
+			return maxRobotToBinTime;
 		}
 
 		double twoTypeElevatingCycleTime() {

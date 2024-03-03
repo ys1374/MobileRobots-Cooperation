@@ -2,12 +2,13 @@
 #include "Autostore.h"
 #include "AStar.h"
 #include <vector>
+#include <fstream>
 
 
 
 const unsigned int filledPercentOfWarehouse{ 80 }; //in %
 double shiftHours{ 8 };
-bool useSecondRobot{ true };
+bool useSecondRobot{ 0 };
 
 // ************** if changed these 3 delete files************************
 const unsigned int xLenghOfWarehouse{ 30 }; //max x size of gird
@@ -37,6 +38,8 @@ int generateRandomNumber(int max);
 void fillQueueOfBinRetrival(std::vector<Autostore::bin>& queueOfBinRetrival, const std::string& filename, std::vector<Autostore::bin> binsVector_);
 void fillFirstRobotLocation(std::vector<Autostore::firstRobot>& firstRobotsVector_, const std::string& filename_);
 void fillSecondRobotLocation(std::vector<Autostore::secondRobot>& secondRobotsVector_, const std::string& filename_);
+//bool fileExists(const std::string& filename);
+//void fillExcelFileCycleTime(lxw_worksheet* worksheet, double cycleTime_, const int column_, const int row_);
 //--------------------------------
 int PortLocations[3][3] = {
 {xLenghOfWarehouse / 2 , 0, 0},
@@ -194,6 +197,26 @@ int main()
 	retrivalTaskObject.constants.secondRobotCapacity = secondRobotCapacity;
 	
 
+	//filling EXCEL file ------------------------------------------------------------------------
+	
+	
+	auto excelfileName{ "cycletime.xlsx" };
+
+	lxw_workbook* workbook = workbook_new(excelfileName);
+	lxw_worksheet* worksheet = workbook_add_worksheet(workbook, NULL);
+	//--------------
+	auto excelfileName2{ "cycletime2.xlsx" };
+
+	lxw_workbook* workbook2 = workbook_new(excelfileName2);
+	lxw_worksheet* worksheet2 = workbook_add_worksheet(workbook2, NULL);
+
+
+
+
+
+
+
+
 
 	
 	//the evaluation throughput in one type ---------------------------------
@@ -218,6 +241,7 @@ int main()
 		
 
 		double cycleTime = retrivalTaskObject.oneTypeCycleTime();
+		worksheet_write_number(worksheet, retrivalTaskId + 1, 0, cycleTime, NULL);
 
 
 
@@ -269,12 +293,12 @@ int main()
 			//break;
 		}
 		retrivalTaskId++;
+		//break;
 		
 		
 	}
-
-
-
+	
+	if (!useSecondRobot) { workbook_close(workbook); }
 
 
 
@@ -326,9 +350,10 @@ int main()
 		retrivalTaskObject.portSelection();
 
 
-		
+		//double cycleTime = retrivalTaskObject.oneTypeCycleTime();
 		double cycleTime = retrivalTaskObject.twoTypeCycleTime();
-		break;
+		worksheet_write_number(worksheet, retrivalTaskId + 1, 0, cycleTime, NULL);
+		//break;
 
 
 
@@ -378,7 +403,8 @@ int main()
 
 
 	}
-
+	if (useSecondRobot) { workbook_close(workbook2); }
+	
 #endif
 
 
