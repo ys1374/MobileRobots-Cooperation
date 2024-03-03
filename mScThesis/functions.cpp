@@ -161,7 +161,3 @@ void fillSecondRobotLocation(std::vector<Autostore::secondRobot>& secondRobotsVe
     }
 }
 
-
-void fillExcelFileCycleTime(lxw_worksheet* worksheet, double cycleTime_, const int column_, const int row_) {
-    worksheet_write_number(worksheet, row_, column_, cycleTime_, NULL);
-}
