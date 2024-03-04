@@ -8,6 +8,7 @@
 
 
 
+
 const unsigned int filledPercentOfWarehouse{ 80 }; //in %
 double shiftHours{ 8 };
 bool useSecondRobot{ 1 };
