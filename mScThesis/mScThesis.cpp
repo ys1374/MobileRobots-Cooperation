@@ -6,12 +6,11 @@
 #include <string>
 #include <filesystem>
 
-
-
-
+bool useSecondRobot{ 1 };
+#if 1
 const unsigned int filledPercentOfWarehouse{ 80 }; //in %
 double shiftHours{ 8 };
-bool useSecondRobot{ 1 };
+
 
 // ************** if changed these 3 delete files************************
 const unsigned int xLenghOfWarehouse{ 30 }; //max x size of gird
@@ -30,14 +29,17 @@ long long int retrivalTaskId{ 0 };
 unsigned int maxNumOfBins{ xLenghOfWarehouse * yLenghOfWarehouse * zLenghOfWarehouse * filledPercentOfWarehouse / 100 };
 std::vector<double> cycleTimeOneType;
 
+#endif
 
 //functions-----------------------
+#if 1
 int generateRandomNumber(int max);
 void fillQueueOfBinRetrival(std::vector<Autostore::bin>& queueOfBinRetrival, const std::string& filename, std::vector<Autostore::bin> binsVector_);
 void fillFirstRobotLocation(std::vector<Autostore::firstRobot>& firstRobotsVector_, const std::string& filename_);
 void fillSecondRobotLocation(std::vector<Autostore::secondRobot>& secondRobotsVector_, const std::string& filename_);
 bool fileExists(const std::string& filename);
 //void fillExcelFileCycleTime(lxw_worksheet* worksheet, double cycleTime_, const int column_, const int row_);
+
 //--------------------------------
 
 
@@ -48,7 +50,7 @@ int PortLocations[3][3] = {
 {xLenghOfWarehouse - 1, yLenghOfWarehouse / 2, 2}
 };
 
-
+#endif
 
 
 
@@ -64,7 +66,8 @@ int main()
 {	
 	 
 	//***we need to fill the warehouse with robots and bins objects*****
-	// 	//port objects---------------------------------
+	//port objects---------------------------------
+#if 1
 	std::vector<Autostore::port> portsVector;// Vector of class objects
 	Autostore::port portObject;
 
@@ -76,8 +79,9 @@ int main()
 
 		portsVector.push_back(portObject);
 	}
-
+#endif
 	//filling first robot-----------------------
+#if 1
 	std::vector<Autostore::firstRobot> firstRobotsVector;// Vector of class objects
 	Autostore::firstRobot firstRobotObject;
 
@@ -88,8 +92,9 @@ int main()
 		
 		firstRobotsVector.push_back(firstRobotObject);
 	}
-
+#endif
 	//second robot------------------------------
+#if 1
 	std::vector<Autostore::secondRobot> secondRobotsVector;// Vector of class objects
 	Autostore::secondRobot secondRobotObject;
 
@@ -108,12 +113,15 @@ int main()
 
 		secondRobotsVector.push_back(secondRobotObject);
 	}
-
+#endif
 	//bins--------------------------------------
+#if 1
 	std::vector<Autostore::bin> binsVector;// Vector of class objects
 	Autostore::bin binsObject; // fins will fill with locations
+#endif
 
 	//creating gridbins location on grid--------
+#if 1
 	std::vector<std::vector<std::vector<Autostore::gridLocation>>> gridLocationVector(
 		xLenghOfWarehouse,
 		std::vector<std::vector<Autostore::gridLocation>>(
@@ -122,10 +130,11 @@ int main()
 		zLenghOfWarehouse)));// Vector of class objects
 
 	Autostore::gridLocation gridLocationObject;//creating object
-
+#endif
 
 	
 	//fill locations and bins-------------------------------------------------
+#if 1
 	for (int k = 0; k < zLenghOfWarehouse; k++) {
 		for (int j = 0; j < yLenghOfWarehouse; j++) {
 			for (int i = 0; i < xLenghOfWarehouse; i++) {
@@ -189,16 +198,18 @@ int main()
 
 
 	std::cout << "Objects on Warehouse all set!\n";
-
+#endif
 
 	//make a Queue for retrival from shufling the binsVector-----------------
+#if 1
 	std::vector<Autostore::bin> queueOfBinRetrival;
 	queueOfBinRetrival.reserve(maxNumOfBins);
 
 	fillQueueOfBinRetrival(queueOfBinRetrival, "queueOfBinRetrival.txt", binsVector);
-
+#endif
 
 	//filling retrivalTaskObject--------------------------------------------------------------
+#if 1
 	Autostore::retrivalTask retrivalTaskObject(portsVector, firstRobotsVector, secondRobotsVector, binsVector, gridLocationVector);
 	std::vector<Autostore::retrivalTask> finishedRetriveTaskVector;
 
@@ -207,77 +218,126 @@ int main()
 	retrivalTaskObject.constants.zLenghOfWarehouse = zLenghOfWarehouse;
 
 	retrivalTaskObject.constants.secondRobotCapacity = secondRobotCapacity;
-	
+#endif
 
 	//filling EXCEL file ------------------------------------------------------------------------
 	
+#if 1	
+	auto twoTypeExcelfileName{ "twoTypeExcelfile.xlsx" };
+	lxw_workbook* twoTypeWorkbook = workbook_new(twoTypeExcelfileName);
+	lxw_worksheet* twoTypeWorksheet = workbook_add_worksheet(twoTypeWorkbook, NULL);
+	worksheet_write_string(twoTypeWorksheet, 0, 0, "LOCATION", NULL);
+
+	worksheet_write_string(twoTypeWorksheet, 0, 9, "Bin X", NULL);
+	worksheet_write_string(twoTypeWorksheet, 0, 10, "Bin Y", NULL);
+	worksheet_write_string(twoTypeWorksheet, 0, 11, "Bin Z", NULL);
+
+	worksheet_write_string(twoTypeWorksheet, 0, 1, "FR X", NULL);
+	worksheet_write_string(twoTypeWorksheet, 0, 2, "FR Y", NULL);
+
+	worksheet_write_string(twoTypeWorksheet, 0, 3, "Port X", NULL);
+	worksheet_write_string(twoTypeWorksheet, 0, 4, "Port Y", NULL);
+
+	worksheet_write_string(twoTypeWorksheet, 0, 5, "SR ToB CT", NULL);
+	worksheet_write_string(twoTypeWorksheet, 0, 6, "twoT E CT", NULL);
+
+	worksheet_write_string(twoTypeWorksheet, 0, 7, "FR ToB CT", NULL);
+	worksheet_write_string(twoTypeWorksheet, 0, 8, "B ToP CT", NULL);
+
+	worksheet_write_string(twoTypeWorksheet, 0, 12, "twoT L CT", NULL);
+	worksheet_write_string(twoTypeWorksheet, 0, 13, "CT", NULL);
+
+	//worksheet_write_string(twoTypeWorksheet, 0, 14, "#BTo Relocate", NULL);
+
+	worksheet_write_string(twoTypeWorksheet, 0, 14, "2ndR id", NULL);
+	worksheet_write_string(twoTypeWorksheet, 0, 15, "2ndR X", NULL);
+	worksheet_write_string(twoTypeWorksheet, 0, 16, "2ndR Y", NULL);
+#endif
+	//----------------------------------------------------------
+	//oneTypeExcel
+#if 1
+	auto oneTypeExcelfileName{ "oneTypeExcelfile.xlsx" };
+	lxw_workbook* oneTypeWorkbook = workbook_new(oneTypeExcelfileName);
+	lxw_worksheet* oneTypeWorksheet = workbook_add_worksheet(oneTypeWorkbook, NULL);
+	worksheet_write_string(oneTypeWorksheet, 0, 0, "LOCATION", NULL);
+
+	worksheet_write_string(oneTypeWorksheet, 0, 9, "Bin X", NULL);
+	worksheet_write_string(oneTypeWorksheet, 0, 10, "Bin Y", NULL);
+	worksheet_write_string(oneTypeWorksheet, 0, 11, "Bin Z", NULL);
+
+	worksheet_write_string(oneTypeWorksheet, 0, 1, "FR X", NULL);
+	worksheet_write_string(oneTypeWorksheet, 0, 2, "FR Y", NULL);
+
+	worksheet_write_string(oneTypeWorksheet, 0, 3, "Port X", NULL);
+	worksheet_write_string(oneTypeWorksheet, 0, 4, "Port Y", NULL);
+
+	worksheet_write_string(oneTypeWorksheet, 0, 5, "FR ToB CT", NULL);
+	worksheet_write_string(oneTypeWorksheet, 0, 6, "E CT", NULL); 
+
+	worksheet_write_string(oneTypeWorksheet, 0, 7, "2*BToP CT", NULL); 
+	worksheet_write_string(oneTypeWorksheet, 0, 8, "CT", NULL);
+
+	worksheet_write_string(oneTypeWorksheet, 0, 12, "E goal CT", NULL);
+	worksheet_write_string(oneTypeWorksheet, 0, 13, "relocationCT", NULL);
+
+	worksheet_write_string(oneTypeWorksheet, 0, 14, "#BTo Relocate", NULL);
+#endif
+
+
+
+
+
+
+
+
+
+
+
 	
-	auto excelfileName{ "cycletime.xlsx" };
-
-	lxw_workbook* workbook = workbook_new(excelfileName);
-	lxw_worksheet* worksheet = workbook_add_worksheet(workbook, NULL);
-
-
-
-
-
-
-
-
-
-
-
-
-
-	
-	//the evaluation throughput in one type ---------------------------------
+	//the evaluation throughput in one type 11111111111111111111111111111111
+#if 1
 	while ((!queueOfBinRetrival.empty()) && (!useSecondRobot))
 	{	
-		std::cout << "\n\nRetriving " << queueOfBinRetrival[0].locationName << " is on Track\n";
+		std::cout << "\nRetriving " << queueOfBinRetrival[0].locationName;
+		//if (queueOfBinRetrival[0].xLocation == 0 && queueOfBinRetrival[0].yLocation == 0) {
+		//	queueOfBinRetrival.erase(queueOfBinRetrival.begin());
+		//}
 		if (queueOfBinRetrival[0].xLocation == 0 && queueOfBinRetrival[0].yLocation == 0) {
 			queueOfBinRetrival.erase(queueOfBinRetrival.begin());
+			std::cout << "--------->This is deleted from queue!";
+			continue;
 		}
-
+		if (queueOfBinRetrival[0].zLocation == 0) {
+			queueOfBinRetrival.erase(queueOfBinRetrival.begin());
+			std::cout << "--------->This is deleted from queue!";
+			continue;
+		}
 
 
 		retrivalTaskObject.reset();
 		retrivalTaskObject.id = retrivalTaskId;
 		retrivalTaskObject.binToRetrive = binsVector[queueOfBinRetrival[0].binId];
-		//retrivalTaskObject.binToRetrive_ = &binsVector[queueOfBinRetrival[0].binId];
-
-
-		retrivalTaskObject.firstRobotSelection();
-		retrivalTaskObject.portSelection();
 		
-		
+		worksheet_write_string(oneTypeWorksheet, retrivalTaskId + 1, 0, retrivalTaskObject.binToRetrive.locationName.c_str(), NULL);
+		worksheet_write_number(oneTypeWorksheet, retrivalTaskId + 1, 9, retrivalTaskObject.binToRetrive.xLocation, NULL);
+		worksheet_write_number(oneTypeWorksheet, retrivalTaskId + 1, 10, retrivalTaskObject.binToRetrive.yLocation, NULL);
+		worksheet_write_number(oneTypeWorksheet, retrivalTaskId + 1, 11, retrivalTaskObject.binToRetrive.zLocation, NULL);
 
-		double cycleTime = retrivalTaskObject.oneTypeCycleTime();
+		retrivalTaskObject.firstRobotSelection(oneTypeWorksheet);
+		retrivalTaskObject.portSelection(oneTypeWorksheet);
+
+
+		double cycleTime = retrivalTaskObject.oneTypeCycleTime(oneTypeWorksheet);
 		cycleTimeOneType.push_back(cycleTime);
 		
-
-
-
-
-
-
 
 		firstRobotsVector[retrivalTaskObject.selectedfirstRobot.id].time =
 			firstRobotsVector[retrivalTaskObject.selectedfirstRobot.id].time + cycleTime; // change robot time
 		
 		firstRobotsVector[retrivalTaskObject.selectedfirstRobot.id].numOfTasks++;
 
-
-
-		//std::cout << "Finished Retriving " << queueOfBinRetrival[0].locationName << 
-		//	". CycleTime: " << cycleTime << " Robot Id: " << retrivalTaskObject.selectedfirstRobot.id
-		//	<< " RobotTime: " << firstRobotsVector[retrivalTaskObject.selectedfirstRobot.id].time<<
-		//	"\n-----------------------------------------------------------";
-		
-		
-		//finishedRetriveTaskVector.push_back(finishedRetriveTaskVector[retrivalTaskId]);
 		queueOfBinRetrival.erase(queueOfBinRetrival.begin());
 		
-
 
 		finishedRetriveTaskVector.push_back(retrivalTaskObject);
 		
@@ -294,6 +354,7 @@ int main()
 
 			std::cout << "total num of retrived Bin: " << finishedRetriveTaskVector.size()
 				<< " throughput/hour: " << finishedRetriveTaskVector.size()/shiftHours;
+
 			break;
 		}
 		
@@ -310,9 +371,13 @@ int main()
 		
 	}
 	
+	if (!useSecondRobot) { workbook_close(oneTypeWorkbook); }
+#endif
 
+#if 0
 	auto firstCycleTimefileName = "FirstCycleTime.txt";
-	if (!fileExists(firstCycleTimefileName)) {
+
+	if (!useSecondRobot) {
 		std::ofstream fileOutCycleTime(firstCycleTimefileName);
 
 		for (auto& cycleTime : cycleTimeOneType) {
@@ -321,87 +386,68 @@ int main()
 
 		fileOutCycleTime.close();
 	}
-	
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	std::ifstream fileIn(firstCycleTimefileName);
+	std::ifstream firstCycleTimefile(firstCycleTimefileName);
 	std::string line;
 	int counter{ 0 };
 
-	while (std::getline(fileIn, line)) {
-		cycleTimeOneType.push_back(std::stod(line));
-		//worksheet_write_number(worksheet, counter + 1, 0, , NULL);
-		counter++;
+	if (useSecondRobot) {
+		while (std::getline(firstCycleTimefile, line)) {
+			cycleTimeOneType.push_back(std::stod(line));
+			//worksheet_write_number(worksheet, counter + 1, 0, , NULL);
+			counter++;
+		}
 	}
+	firstCycleTimefile.close();
 
-	fileIn.close();
+	//std::remove("FirstCycleTime.txt");
+	if (useSecondRobot) { workbook_close(workbook); }
+#endif
 
 
+	//two type evaluation throughput
+#if 1
 
-	//the evaluation throughput in two type -------------------------------------
 	while ((!queueOfBinRetrival.empty()) && (useSecondRobot))
 	{
-		std::cout << "\n\nRetriving " << queueOfBinRetrival[0].locationName << " is on Track\n";
+		std::cout << "\nRetriving " << queueOfBinRetrival[0].locationName ;
 
 		if (queueOfBinRetrival[0].xLocation == 0 && queueOfBinRetrival[0].yLocation == 0) {
 			queueOfBinRetrival.erase(queueOfBinRetrival.begin());
-			std::cout << "\nThis is deleted from queue!";
+			std::cout << "--------->This is deleted from queue!";
 			continue;
 		}
 		if (queueOfBinRetrival[0].zLocation == 0) {
 			queueOfBinRetrival.erase(queueOfBinRetrival.begin());
-			std::cout << "\nThis is deleted from queue!";
+			std::cout << "--------->This is deleted from queue!";
 			continue;
 		}
-
 
 
 		retrivalTaskObject.reset();
 		retrivalTaskObject.id = retrivalTaskId;
 		retrivalTaskObject.binToRetrive = binsVector[queueOfBinRetrival[0].binId];
-		//retrivalTaskObject.binToRetrive_ = &binsVector[queueOfBinRetrival[0].binId];
 
+		worksheet_write_string(twoTypeWorksheet, retrivalTaskId + 1, 0, retrivalTaskObject.binToRetrive.locationName.c_str(), NULL);
+		worksheet_write_number(twoTypeWorksheet, retrivalTaskId + 1, 9, retrivalTaskObject.binToRetrive.xLocation, NULL);
+		worksheet_write_number(twoTypeWorksheet, retrivalTaskId + 1, 10, retrivalTaskObject.binToRetrive.yLocation, NULL);
+		worksheet_write_number(twoTypeWorksheet, retrivalTaskId + 1, 11, retrivalTaskObject.binToRetrive.zLocation, NULL);
 
-		//if (retrivalTaskObject.binToRetrive.binId == 12206) {
-		//	std::cout << "";
-		//}
+		retrivalTaskObject.firstRobotSelection(twoTypeWorksheet);
+		retrivalTaskObject.secondRobotSelection(twoTypeWorksheet);
+		retrivalTaskObject.portSelection(twoTypeWorksheet);
+		
+		double cycleTime = retrivalTaskObject.twoTypeCycleTime(twoTypeWorksheet);
 
-		retrivalTaskObject.firstRobotSelection();
-		retrivalTaskObject.secondRobotSelection();
-		retrivalTaskObject.portSelection();
-
-
-		//double cycleTime = retrivalTaskObject.oneTypeCycleTime();
-		double cycleTime = retrivalTaskObject.twoTypeCycleTime();
-		worksheet_write_number(worksheet, retrivalTaskId + 1, 1, cycleTime, NULL);
-		worksheet_write_number(worksheet, retrivalTaskId + 1, 0, cycleTimeOneType[retrivalTaskId], NULL);
+		//worksheet_write_number(twoTypeWorksheet, retrivalTaskId + 1, 0, cycleTimeOneType[retrivalTaskId], NULL);
+		//worksheet_write_number(twoTypeWorksheet, retrivalTaskId + 1, 1, cycleTime, NULL);
+		//worksheet_write_number(twoTypeWorksheet, retrivalTaskId + 1, 2, ((cycleTime / cycleTimeOneType[retrivalTaskId]) - 1)*100, NULL);
+		//worksheet_write_number(twoTypeWorksheet, retrivalTaskId + 1, 3, retrivalTaskObject.binToRetrive.zLocation, NULL);
 		//break;
 
 
 
 		queueOfBinRetrival.erase(queueOfBinRetrival.begin());
-
-
-
 		finishedRetriveTaskVector.push_back(retrivalTaskObject);
 
 
@@ -437,34 +483,17 @@ int main()
 
 
 	}
-	
 
-	
+	if (useSecondRobot) { workbook_close(twoTypeWorkbook); }
 
-
-
-
-
-	
-
-	//std::remove("FirstCycleTime.txt");
-	if (useSecondRobot) { workbook_close(workbook); }
-	
+#endif
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
+	//error handeling
+#if 1
 	if (queueOfBinRetrival.empty()){
 		for (auto &robot : firstRobotsVector) {
 			std::cout << "Robot Id:" << robot.id << " Robot time: " << robot.time << "\n";
@@ -472,7 +501,7 @@ int main()
 		std::cout << "\n\nEmpty Retrival Queue!\n";
 	}
 	else{ std::cout << "\n\nRetrival Queue Not Empty Or Something Wrong!\n"; }
-
+#endif
 
 
 
