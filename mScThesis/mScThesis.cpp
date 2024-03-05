@@ -6,7 +6,8 @@
 #include <string>
 #include <filesystem>
 
-bool useSecondRobot{ 1 };
+bool useSecondRobot{ 0 };
+bool useBoth{ 1 };
 #if 1
 const unsigned int filledPercentOfWarehouse{ 80 }; //in %
 double shiftHours{ 8 };
@@ -374,36 +375,6 @@ int main()
 	if (!useSecondRobot) { workbook_close(oneTypeWorkbook); }
 #endif
 
-#if 0
-	auto firstCycleTimefileName = "FirstCycleTime.txt";
-
-	if (!useSecondRobot) {
-		std::ofstream fileOutCycleTime(firstCycleTimefileName);
-
-		for (auto& cycleTime : cycleTimeOneType) {
-			fileOutCycleTime << cycleTime << "\n";
-		}
-
-		fileOutCycleTime.close();
-	}
-
-	std::ifstream firstCycleTimefile(firstCycleTimefileName);
-	std::string line;
-	int counter{ 0 };
-
-	if (useSecondRobot) {
-		while (std::getline(firstCycleTimefile, line)) {
-			cycleTimeOneType.push_back(std::stod(line));
-			//worksheet_write_number(worksheet, counter + 1, 0, , NULL);
-			counter++;
-		}
-	}
-	firstCycleTimefile.close();
-
-	//std::remove("FirstCycleTime.txt");
-	if (useSecondRobot) { workbook_close(workbook); }
-#endif
-
 
 	//two type evaluation throughput
 #if 1
@@ -489,7 +460,56 @@ int main()
 #endif
 
 
+	//Both type
+#if 1
 
+	while ((!queueOfBinRetrival.empty()) && useBoth){
+
+		std::cout << "\nRetriving " << queueOfBinRetrival[0].locationName;
+
+		if (queueOfBinRetrival[0].xLocation == 0 && queueOfBinRetrival[0].yLocation == 0) {
+			queueOfBinRetrival.erase(queueOfBinRetrival.begin());
+			std::cout << "--------->This is deleted from queue!";
+			continue;
+		}
+		if (queueOfBinRetrival[0].zLocation == 0) {
+			queueOfBinRetrival.erase(queueOfBinRetrival.begin());
+			std::cout << "--------->This is deleted from queue!";
+			continue;
+		}
+
+
+		retrivalTaskObject.reset();
+		retrivalTaskObject.id = retrivalTaskId;
+		retrivalTaskObject.binToRetrive = binsVector[queueOfBinRetrival[0].binId];
+
+		//worksheet_write_string(twoTypeWorksheet, retrivalTaskId + 1, 0, retrivalTaskObject.binToRetrive.locationName.c_str(), NULL);
+		//worksheet_write_number(twoTypeWorksheet, retrivalTaskId + 1, 9, retrivalTaskObject.binToRetrive.xLocation, NULL);
+		//worksheet_write_number(twoTypeWorksheet, retrivalTaskId + 1, 10, retrivalTaskObject.binToRetrive.yLocation, NULL);
+		//worksheet_write_number(twoTypeWorksheet, retrivalTaskId + 1, 11, retrivalTaskObject.binToRetrive.zLocation, NULL);
+
+		auto numOfTopBin = retrivalTaskObject.findTopBin(queueOfBinRetrival[0].xLocation, queueOfBinRetrival[0].yLocation).zLocation;
+
+		retrivalTaskObject.firstRobotSelection(twoTypeWorksheet);
+		retrivalTaskObject.secondRobotSelection(twoTypeWorksheet);
+		retrivalTaskObject.portSelection(twoTypeWorksheet);
+
+		double cycleTime = retrivalTaskObject.twoTypeCycleTime(twoTypeWorksheet);
+
+
+
+		queueOfBinRetrival.erase(queueOfBinRetrival.begin());
+		finishedRetriveTaskVector.push_back(retrivalTaskObject);
+
+		if (retrivalTaskId == 600) {break;}
+		retrivalTaskId++;
+
+
+	}
+
+	if (useSecondRobot) { workbook_close(twoTypeWorkbook); }
+
+#endif
 
 
 	//error handeling
