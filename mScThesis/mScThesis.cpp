@@ -238,30 +238,29 @@ int main()
 	lxw_worksheet* twoTypeWorksheet = workbook_add_worksheet(twoTypeWorkbook, NULL);
 	worksheet_write_string(twoTypeWorksheet, 0, 0, "LOCATION", NULL);
 
-	worksheet_write_string(twoTypeWorksheet, 0, 9, "Bin X", NULL);
-	worksheet_write_string(twoTypeWorksheet, 0, 10, "Bin Y", NULL);
-	worksheet_write_string(twoTypeWorksheet, 0, 11, "Bin Z", NULL);
+	worksheet_write_string(twoTypeWorksheet, 0, 1, "Bin X", NULL);
+	worksheet_write_string(twoTypeWorksheet, 0, 2, "Bin Y", NULL);
+	worksheet_write_string(twoTypeWorksheet, 0, 3, "Bin Z", NULL);
 
-	worksheet_write_string(twoTypeWorksheet, 0, 1, "FR X", NULL);
-	worksheet_write_string(twoTypeWorksheet, 0, 2, "FR Y", NULL);
+	worksheet_write_string(twoTypeWorksheet, 0, 4, "FR X", NULL);
+	worksheet_write_string(twoTypeWorksheet, 0, 5, "FR Y", NULL);
 
-	worksheet_write_string(twoTypeWorksheet, 0, 3, "Port X", NULL);
-	worksheet_write_string(twoTypeWorksheet, 0, 4, "Port Y", NULL);
+	worksheet_write_string(twoTypeWorksheet, 0, 6, "# SR", NULL);
 
-	worksheet_write_string(twoTypeWorksheet, 0, 5, "SR ToB CT", NULL);
-	worksheet_write_string(twoTypeWorksheet, 0, 6, "twoT E CT", NULL);
+	worksheet_write_string(twoTypeWorksheet, 0, 7, "Port X", NULL);
+	worksheet_write_string(twoTypeWorksheet, 0, 8, "Port Y", NULL);
 
-	worksheet_write_string(twoTypeWorksheet, 0, 7, "FR ToB CT", NULL);
-	worksheet_write_string(twoTypeWorksheet, 0, 8, "B ToP CT", NULL);
+	worksheet_write_string(twoTypeWorksheet, 0, 9, "FR ToB CT", NULL);
+	worksheet_write_string(twoTypeWorksheet, 0, 10, "SRs ToB CT", NULL);
+	worksheet_write_string(twoTypeWorksheet, 0, 11, "Rs ToB CT", NULL);
+	
+	worksheet_write_string(twoTypeWorksheet, 0, 12, "2T E CT", NULL);
+	worksheet_write_string(twoTypeWorksheet, 0, 13, "2T L CT", NULL);
 
-	worksheet_write_string(twoTypeWorksheet, 0, 12, "twoT L CT", NULL);
-	worksheet_write_string(twoTypeWorksheet, 0, 13, "CT", NULL);
+	worksheet_write_string(twoTypeWorksheet, 0, 14, "FR ToP CT", NULL);
+		
+	worksheet_write_string(twoTypeWorksheet, 0, 15, "CT", NULL);
 
-	//worksheet_write_string(twoTypeWorksheet, 0, 14, "#BTo Relocate", NULL);
-
-	worksheet_write_string(twoTypeWorksheet, 0, 14, "2ndR id", NULL);
-	worksheet_write_string(twoTypeWorksheet, 0, 15, "2ndR X", NULL);
-	worksheet_write_string(twoTypeWorksheet, 0, 16, "2ndR Y", NULL);
 #endif
 	//bothTypeExcel
 #if 1	
@@ -374,6 +373,7 @@ int main()
 
 	//one type
 #if 1
+	std::cout << "***********************One Type*******************************";
 	while ((!oneTypeQueueOfBinRetrival.empty()))
 	{	
 		std::cout << "\nRetriving " << oneTypeQueueOfBinRetrival[0].locationName;
@@ -442,8 +442,8 @@ int main()
 
 
 	//two type
-#if 0
-
+#if 1
+	std::cout << "***********************Two Type*******************************";
 	retrivalTaskId = 0;
 	while ((!twoTypeQueueOfBinRetrival.empty()))
 	{
@@ -461,16 +461,27 @@ int main()
 		twoTypeRetrivalTaskObject.binToRetrive = twoTypeBinsVector[twoTypeQueueOfBinRetrival[0].binId];
 
 		worksheet_write_string(twoTypeWorksheet, retrivalTaskId + 1, 0, twoTypeRetrivalTaskObject.binToRetrive.locationName.c_str(), NULL);
-		worksheet_write_number(twoTypeWorksheet, retrivalTaskId + 1, 9, twoTypeRetrivalTaskObject.binToRetrive.xLocation, NULL);
-		worksheet_write_number(twoTypeWorksheet, retrivalTaskId + 1, 10, twoTypeRetrivalTaskObject.binToRetrive.yLocation, NULL);
-		worksheet_write_number(twoTypeWorksheet, retrivalTaskId + 1, 11, twoTypeRetrivalTaskObject.binToRetrive.zLocation, NULL);
+		worksheet_write_number(twoTypeWorksheet, retrivalTaskId + 1, 1, twoTypeRetrivalTaskObject.binToRetrive.xLocation, NULL);
+		worksheet_write_number(twoTypeWorksheet, retrivalTaskId + 1, 2, twoTypeRetrivalTaskObject.binToRetrive.yLocation, NULL);
+		worksheet_write_number(twoTypeWorksheet, retrivalTaskId + 1, 3, twoTypeRetrivalTaskObject.binToRetrive.zLocation, NULL);
 
-		twoTypeRetrivalTaskObject.firstRobotSelection(twoTypeWorksheet);
-		twoTypeRetrivalTaskObject.secondRobotSelection(twoTypeWorksheet);
-		twoTypeRetrivalTaskObject.portSelection(twoTypeWorksheet);
+		twoTypeRetrivalTaskObject.firstRobotSelection();
+		worksheet_write_number(twoTypeWorksheet, retrivalTaskId + 1, 4, twoTypeFirstRobotsVector[twoTypeRetrivalTaskObject.selectedfirstRobot.id].xLocation, NULL);
+		worksheet_write_number(twoTypeWorksheet, retrivalTaskId + 1, 5, twoTypeFirstRobotsVector[twoTypeRetrivalTaskObject.selectedfirstRobot.id].yLocation, NULL);
+
+
+		twoTypeRetrivalTaskObject.portSelection();
+		worksheet_write_number(twoTypeWorksheet, retrivalTaskId + 1, 6, twoTypePortsVector[twoTypeRetrivalTaskObject.selectedPort.id].xLocation, NULL);
+		worksheet_write_number(twoTypeWorksheet, retrivalTaskId + 1, 7, twoTypePortsVector[twoTypeRetrivalTaskObject.selectedPort.id].yLocation, NULL);
 		
-		double cycleTime = twoTypeRetrivalTaskObject.twoTypeCycleTime(twoTypeWorksheet);
 
+		twoTypeRetrivalTaskObject.secondRobotSelection();
+		worksheet_write_number(twoTypeWorksheet, retrivalTaskId + 1, 8, twoTypeRetrivalTaskObject.selectedsecondRobotsVector.size(), NULL);
+
+		
+		double twoTypeCycleTime = twoTypeRetrivalTaskObject.twoTypeCycleTime(twoTypeWorksheet);
+		worksheet_write_number(twoTypeWorksheet, retrivalTaskId + 1, 15, twoTypeCycleTime, NULL);
+		worksheet_write_number(bothTypeWorksheet, retrivalTaskId + 1, 18, twoTypeCycleTime, NULL);
 
 		twoTypeQueueOfBinRetrival.erase(twoTypeQueueOfBinRetrival.begin());
 		twoTypeFinishedRetriveTaskVector.push_back(twoTypeRetrivalTaskObject);
@@ -485,31 +496,31 @@ int main()
 
 	
 	//Both type
-#if 0
-	
-	retrivalTaskId = 0;
-	while ((!bothTypeQueueOfBinRetrival.empty())){
+#if 1
 
-		if (bothTypeQueueOfBinRetrival[0].zLocation == 0) {
-			//queueOfBinRetrival.erase(queueOfBinRetrival.begin());
-			bothTypeQueueOfBinRetrival.erase(bothTypeQueueOfBinRetrival.begin());
-			std::cout << "--------->This is deleted from queue!";
-			continue;
+	std::cout << "***********************Both type*******************************" ;
+
+	int counter{ 0 };
+	while (1) {
+		if (bothTypeQueueOfBinRetrival[counter].zLocation == 0) {
+			bothTypeQueueOfBinRetrival.erase(bothTypeQueueOfBinRetrival.begin() + counter);
 		}
+		counter++;
+		if (counter >= bothTypeQueueOfBinRetrival.size()) {
+			break;
+		}
+	}
 
+
+	retrivalTaskId = 0;
+	while (!bothTypeQueueOfBinRetrival.empty()){
 
 		if (bothTypeOneRoundOfRetrivalTask.size() == 0) {
 
-			if (retrivalTaskId != 0) {
-
-				for (int i = 0; i < numOfFirstRobots; i++) {
-					bothTypeQueueOfBinRetrival.erase(bothTypeQueueOfBinRetrival.begin());
-				}
-
-			}
-
 			for (int i = 0; i < numOfFirstRobots; i++) {
-				bothTypeOneRoundOfRetrivalTask.push_back(bothTypeQueueOfBinRetrival[i]);
+
+				bothTypeOneRoundOfRetrivalTask.push_back(bothTypeQueueOfBinRetrival[0]);
+				bothTypeQueueOfBinRetrival.erase(bothTypeQueueOfBinRetrival.begin());
 			}
 
 			std::sort(bothTypeOneRoundOfRetrivalTask.begin(), bothTypeOneRoundOfRetrivalTask.end(),
@@ -520,6 +531,7 @@ int main()
 					return az < bz;
 				});
 		}
+
 
 		std::cout << "\nRetriving " << bothTypeOneRoundOfRetrivalTask[0].locationName;
 
@@ -537,20 +549,18 @@ int main()
 		if (bothTypeOneRoundOfRetrivalTask.size() <= (numOfFirstRobots - numOfSecondRobots)) { twoTypeCondition = false; }
 		else { twoTypeCondition = true; }
 
+		bothTypeRetrivalTaskObject.firstRobotSelection();
+		bothTypeRetrivalTaskObject.portSelection();
 
+		double cycleTime{ 0.0 };
 
 		if (twoTypeCondition) {
-			bothTypeRetrivalTaskObject.firstRobotSelection(bothTypeWorksheet);
-			bothTypeRetrivalTaskObject.secondRobotSelection(bothTypeWorksheet);
-			bothTypeRetrivalTaskObject.portSelection(bothTypeWorksheet);
-
-			double cycleTime = bothTypeRetrivalTaskObject.twoTypeCycleTime(bothTypeWorksheet);
+			bothTypeRetrivalTaskObject.secondRobotSelection();
+			cycleTime = bothTypeRetrivalTaskObject.bothTypeTwoTypeCycleTime(bothTypeWorksheet);
 		}
 		else
 		{
-			bothTypeRetrivalTaskObject.firstRobotSelection(bothTypeWorksheet);
-			bothTypeRetrivalTaskObject.portSelection(bothTypeWorksheet);
-			double cycleTime = bothTypeRetrivalTaskObject.oneTypeCycleTime(bothTypeWorksheet);
+			cycleTime = bothTypeRetrivalTaskObject.bothTypeOneTypeCycleTime(bothTypeWorksheet);
 		}
 
 
