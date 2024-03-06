@@ -390,6 +390,13 @@ int main()
 		}
 
 
+		if (oneTypeQueueOfBinRetrival[0].xLocation == 0 && oneTypeQueueOfBinRetrival[0].yLocation == 8 && oneTypeQueueOfBinRetrival[0].zLocation == 9) {
+			std::cout << "";
+		}
+
+
+
+
 		oneTypeRetrivalTaskObject.reset();
 		oneTypeRetrivalTaskObject.id = retrivalTaskId;
 		oneTypeRetrivalTaskObject.binToRetrive = oneTypeBinsVector[oneTypeQueueOfBinRetrival[0].binId];
