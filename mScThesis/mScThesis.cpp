@@ -277,26 +277,31 @@ int main()
 	worksheet_write_string(bothTypeWorksheet, 0, 4, "FR X", NULL);
 	worksheet_write_string(bothTypeWorksheet, 0, 5, "FR Y", NULL);
 
-	worksheet_write_string(bothTypeWorksheet, 0, 6, "SR X", NULL);
-	worksheet_write_string(bothTypeWorksheet, 0, 7, "SR Y", NULL);
+	worksheet_write_string(bothTypeWorksheet, 0, 6, "# SR", NULL);
 
-	worksheet_write_string(bothTypeWorksheet, 0, 8, "Port X", NULL);
-	worksheet_write_string(bothTypeWorksheet, 0, 9, "Port Y", NULL);
+	worksheet_write_string(bothTypeWorksheet, 0, 7, "Port X", NULL);
+	worksheet_write_string(bothTypeWorksheet, 0, 8, "Port Y", NULL);
 
-	worksheet_write_string(bothTypeWorksheet, 0, 10, "FR ToB CT", NULL);
-	worksheet_write_string(bothTypeWorksheet, 0, 11, "SR ToB CT", NULL);
+	worksheet_write_string(bothTypeWorksheet, 0, 9, "FR ToB CT", NULL);
+	worksheet_write_string(bothTypeWorksheet, 0, 10, "SR ToB CT", NULL);
+	worksheet_write_string(bothTypeWorksheet, 0, 11, "Rs ToB CT", NULL);
 
 	worksheet_write_string(bothTypeWorksheet, 0, 12, "1T E CT", NULL);
 	worksheet_write_string(bothTypeWorksheet, 0, 13, "2T E CT", NULL);
 		
 	worksheet_write_string(bothTypeWorksheet, 0, 14, "B ToP CT", NULL);
+	worksheet_write_string(bothTypeWorksheet, 0, 15, "P ToB CT", NULL);
 	
-	worksheet_write_string(bothTypeWorksheet, 0, 15, "1T L CT", NULL);
-	worksheet_write_string(bothTypeWorksheet, 0, 16, "2T L CT", NULL);
+	worksheet_write_string(bothTypeWorksheet, 0, 16, "1T L CT", NULL);
+	worksheet_write_string(bothTypeWorksheet, 0, 17, "2T L CT", NULL);
 	
-	worksheet_write_string(bothTypeWorksheet, 0, 17, "1T CT", NULL);
-	worksheet_write_string(bothTypeWorksheet, 0, 18, "2T CT", NULL);
-	worksheet_write_string(bothTypeWorksheet, 0, 19, "CT", NULL);
+	worksheet_write_string(bothTypeWorksheet, 0, 18, "1T CT", NULL);
+	worksheet_write_string(bothTypeWorksheet, 0, 19, "2T CT", NULL);
+
+	worksheet_write_string(bothTypeWorksheet, 0, 20, "1T CT IN", NULL);
+	worksheet_write_string(bothTypeWorksheet, 0, 21, "2T CT IN", NULL);
+
+	worksheet_write_string(bothTypeWorksheet, 0, 22, "CT", NULL);
 
 
 #endif
@@ -406,7 +411,7 @@ int main()
 
 		double cycleTime = oneTypeRetrivalTaskObject.oneTypeCycleTime(oneTypeWorksheet);
 		worksheet_write_number(oneTypeWorksheet, retrivalTaskId + 1, 16, cycleTime, NULL);
-		worksheet_write_number(bothTypeWorksheet, retrivalTaskId + 1, 17, cycleTime, NULL);
+		worksheet_write_number(bothTypeWorksheet, retrivalTaskId + 1, 18, cycleTime, NULL);
 
 		oneTypeQueueOfBinRetrival.erase(oneTypeQueueOfBinRetrival.begin());
 		oneTypeFinishedRetriveTaskVector.push_back(oneTypeRetrivalTaskObject);
@@ -481,7 +486,7 @@ int main()
 		
 		double twoTypeCycleTime = twoTypeRetrivalTaskObject.twoTypeCycleTime(twoTypeWorksheet);
 		worksheet_write_number(twoTypeWorksheet, retrivalTaskId + 1, 15, twoTypeCycleTime, NULL);
-		worksheet_write_number(bothTypeWorksheet, retrivalTaskId + 1, 18, twoTypeCycleTime, NULL);
+		worksheet_write_number(bothTypeWorksheet, retrivalTaskId + 1, 19, twoTypeCycleTime, NULL);
 
 		twoTypeQueueOfBinRetrival.erase(twoTypeQueueOfBinRetrival.begin());
 		twoTypeFinishedRetriveTaskVector.push_back(twoTypeRetrivalTaskObject);
@@ -548,22 +553,38 @@ int main()
 		bool twoTypeCondition;
 		if (bothTypeOneRoundOfRetrivalTask.size() <= (numOfFirstRobots - numOfSecondRobots)) { twoTypeCondition = false; }
 		else { twoTypeCondition = true; }
-
+		
 		bothTypeRetrivalTaskObject.firstRobotSelection();
-		bothTypeRetrivalTaskObject.portSelection();
+		worksheet_write_number(bothTypeWorksheet, retrivalTaskId + 1, 4, bothTypeFirstRobotsVector[bothTypeRetrivalTaskObject.selectedfirstRobot.id].xLocation, NULL);
+		worksheet_write_number(bothTypeWorksheet, retrivalTaskId + 1, 5, bothTypeFirstRobotsVector[bothTypeRetrivalTaskObject.selectedfirstRobot.id].yLocation, NULL);
 
-		double cycleTime{ 0.0 };
+
+
+		bothTypeRetrivalTaskObject.portSelection();
+		worksheet_write_number(bothTypeWorksheet, retrivalTaskId + 1, 7, bothTypePortsVector[bothTypeRetrivalTaskObject.selectedPort.id].xLocation, NULL);
+		worksheet_write_number(bothTypeWorksheet, retrivalTaskId + 1, 8, bothTypePortsVector[bothTypeRetrivalTaskObject.selectedPort.id].yLocation, NULL);
+
+
+		double bothTypeCycleTime{ 0.0 };
 
 		if (twoTypeCondition) {
+
 			bothTypeRetrivalTaskObject.secondRobotSelection();
-			cycleTime = bothTypeRetrivalTaskObject.bothTypeTwoTypeCycleTime(bothTypeWorksheet);
+			bothTypeCycleTime = bothTypeRetrivalTaskObject.bothTypeTwoTypeCycleTime(bothTypeWorksheet);
+			worksheet_write_number(bothTypeWorksheet, retrivalTaskId + 1, 21, bothTypeCycleTime, NULL);
+
 		}
 		else
 		{
-			cycleTime = bothTypeRetrivalTaskObject.bothTypeOneTypeCycleTime(bothTypeWorksheet);
+			bothTypeCycleTime = bothTypeRetrivalTaskObject.bothTypeOneTypeCycleTime(bothTypeWorksheet);
+			worksheet_write_number(bothTypeWorksheet, retrivalTaskId + 1, 20, bothTypeCycleTime, NULL);
 		}
-
-
+		
+		
+		worksheet_write_number(bothTypeWorksheet, retrivalTaskId + 1, 6, bothTypeRetrivalTaskObject.selectedsecondRobotsVector.size(), NULL);
+		worksheet_write_number(bothTypeWorksheet, retrivalTaskId + 1, 22, bothTypeCycleTime, NULL);
+		
+		
 		bothTypeOneRoundOfRetrivalTask.erase(bothTypeOneRoundOfRetrivalTask.begin());
 		bothTypeFinishedRetriveTaskVector.push_back(bothTypeRetrivalTaskObject);
 
