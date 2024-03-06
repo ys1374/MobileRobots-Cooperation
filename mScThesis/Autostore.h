@@ -942,7 +942,7 @@ namespace Autostore {
 			auto robotToBinCycleTime_{ 0.0 };
 			if (firstRobotToBinCycleTime_ > secondRobotToBinCycleTime_ + twoTypeElevatingCycleTime_) { robotToBinCycleTime_ = firstRobotToBinCycleTime_; }
 			else { robotToBinCycleTime_ = secondRobotToBinCycleTime_; }
-			worksheet_write_number(oneTypeWorksheet_, id + 1, 11, twoTypeLoweringCycleTime_, NULL);
+			worksheet_write_number(oneTypeWorksheet_, id + 1, 11, robotToBinCycleTime_, NULL);
 
 			auto totalCycleTime = 
 				
