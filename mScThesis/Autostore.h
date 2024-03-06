@@ -1153,14 +1153,18 @@ namespace Autostore {
 		{
 			auto firstRobotToBinCycleTime_ = firstRobotToBinCycleTime();
 			worksheet_write_number(worksheet_, id + 1, 9, firstRobotToBinCycleTime_, NULL);
+			worksheet_write_number(worksheet_, id + 1, 11, firstRobotToBinCycleTime_, NULL);
 
-			auto elevatingCycleTime_ = bothTypeOneTypeElevatingCycleTime(worksheet_);//14 15 8
-			worksheet_write_number(worksheet_, id + 1, 10, elevatingCycleTime_, NULL);
+			auto elevatingCycleTime_ = bothTypeOneTypeElevatingCycleTime(worksheet_);
+			worksheet_write_number(worksheet_, id + 1, 12, elevatingCycleTime_, NULL);
 
 
-			auto binToPortCycleTime_ = 2 * binToPortCycleTime();
-			worksheet_write_number(worksheet_, id + 1, 12, binToPortCycleTime_, NULL);
-			worksheet_write_number(worksheet_, id + 1, 13, binToPortCycleTime_, NULL);//port to bin
+			auto binToPortCycleTime_ = binToPortCycleTime();
+			worksheet_write_number(worksheet_, id + 1, 14, binToPortCycleTime_, NULL);
+
+
+			auto portToBinCycleTime_ = binToPortCycleTime_;
+			worksheet_write_number(worksheet_, id + 1, 15, portToBinCycleTime_, NULL);//port to bin
 
 			//change Location
 #if 1
@@ -1187,7 +1191,7 @@ namespace Autostore {
 #endif
 
 			auto oneTypeLoweringCycleTime_ = bothTypeOneTypeLoweringCycleTime(elevatingCycleTime_);
-			worksheet_write_number(worksheet_, id + 1, 11, oneTypeLoweringCycleTime_, NULL);
+			worksheet_write_number(worksheet_, id + 1, 16, oneTypeLoweringCycleTime_, NULL);
 			//*****************************************************************
 
 			auto totalCycleTime{
@@ -1366,11 +1370,16 @@ namespace Autostore {
 			worksheet_write_number(oneTypeWorksheet_, id + 1, 10, secondRobotToBinCycleTime_, NULL);
 
 			auto twoTypeElevatingCycleTime_ = bothTypeTwoTypeElevatingCycleTime();
-			worksheet_write_number(oneTypeWorksheet_, id + 1, 12, twoTypeElevatingCycleTime_, NULL);
+			worksheet_write_number(oneTypeWorksheet_, id + 1, 13, twoTypeElevatingCycleTime_, NULL);
 
 			auto binToPortCycleTime_ = binToPortCycleTime();
 			worksheet_write_number(oneTypeWorksheet_, id + 1, 14, binToPortCycleTime_, NULL);
 
+
+			auto robotToBinCycleTime_{ 0.0 };
+			if (firstRobotToBinCycleTime_ > (secondRobotToBinCycleTime_ + twoTypeElevatingCycleTime_)) { robotToBinCycleTime_ = firstRobotToBinCycleTime_; }
+			else { robotToBinCycleTime_ = secondRobotToBinCycleTime_; }
+			worksheet_write_number(oneTypeWorksheet_, id + 1, 11, robotToBinCycleTime_, NULL);
 
 
 			//****************bin & grid & secondR & FR*****************************
@@ -1407,12 +1416,9 @@ namespace Autostore {
 
 
 			auto twoTypeLoweringCycleTime_ = bothTypeTwoTypeLoweringCycleTime();
-			worksheet_write_number(oneTypeWorksheet_, id + 1, 13, twoTypeLoweringCycleTime_, NULL);
+			worksheet_write_number(oneTypeWorksheet_, id + 1, 17, twoTypeLoweringCycleTime_, NULL);
 
-			auto robotToBinCycleTime_{ 0.0 };
-			if (firstRobotToBinCycleTime_ > secondRobotToBinCycleTime_) { robotToBinCycleTime_ = firstRobotToBinCycleTime_; }
-			else { robotToBinCycleTime_ = secondRobotToBinCycleTime_; }
-			worksheet_write_number(oneTypeWorksheet_, id + 1, 11, twoTypeLoweringCycleTime_, NULL);
+
 
 			auto totalCycleTime =
 
@@ -1611,10 +1617,6 @@ namespace Autostore {
 			return cycleTime;
 		}
 #endif
-
-
-
-
 
 
 	};
