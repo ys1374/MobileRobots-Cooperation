@@ -187,8 +187,8 @@ int main()
 
 	std::cout << "Objects on Warehouse all set!\n";
 #endif
-#if 1
 	//Queue for retrival
+#if 1
 	fillQueueOfBinRetrival(queueOfBinRetrival, "queueOfBinRetrival.txt", binsVector);
 #endif
 
@@ -232,7 +232,6 @@ int main()
 
 
 #endif
-
 	//twoTypeExcel
 #if 1	
 	auto twoTypeExcelfileName{ "twoTypeExcelfile.xlsx" };
@@ -265,7 +264,6 @@ int main()
 	worksheet_write_string(twoTypeWorksheet, 0, 15, "2ndR X", NULL);
 	worksheet_write_string(twoTypeWorksheet, 0, 16, "2ndR Y", NULL);
 #endif
-
 	//oneTypeExcel
 #if 1
 	auto oneTypeExcelfileName{ "oneTypeExcelfile.xlsx" };
@@ -294,7 +292,6 @@ int main()
 
 	worksheet_write_string(oneTypeWorksheet, 0, 14, "#BTo Relocate", NULL);
 #endif
-
 
 //filling retrivalTaskObject--------------------------------------------------------------
 	//Vectors Copy	
