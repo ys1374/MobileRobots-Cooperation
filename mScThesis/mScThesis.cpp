@@ -29,8 +29,9 @@ const unsigned int numOfPorts{ 3 };
 long long int locationId{ 0 }, binId{ 0 };
 long long int retrivalTaskId{ 0 };
 
+unsigned int numOfGridLocations{ xLenghOfWarehouse * yLenghOfWarehouse * zLenghOfWarehouse };
 unsigned int maxNumOfBins{ xLenghOfWarehouse * yLenghOfWarehouse * zLenghOfWarehouse * filledPercentOfWarehouse / 100 };
-std::vector<double> cycleTimeOneType;
+
 
 #endif
 
@@ -41,8 +42,6 @@ void fillQueueOfBinRetrival(std::vector<Autostore::bin>& queueOfBinRetrival, con
 void fillFirstRobotLocation(std::vector<Autostore::firstRobot>& firstRobotsVector_, const std::string& filename_);
 void fillSecondRobotLocation(std::vector<Autostore::secondRobot>& secondRobotsVector_, const std::string& filename_);
 bool fileExists(const std::string& filename);
-//Autostore::bin findTopBin(int x_, int y_);
-//void fillExcelFileCycleTime(lxw_worksheet* worksheet, double cycleTime_, const int column_, const int row_);
 
 //--------------------------------
 
@@ -64,14 +63,21 @@ int main()
 	std::vector<Autostore::firstRobot> firstRobotsVector;
 	std::vector<Autostore::secondRobot> secondRobotsVector;
 	std::vector<Autostore::bin> binsVector;
-	std::vector<std::vector<std::vector<Autostore::gridLocation>>> 
-		gridLocationVector(
-		xLenghOfWarehouse,std::vector<std::vector<Autostore::gridLocation>>(
-		yLenghOfWarehouse,std::vector<Autostore::gridLocation>(
-		zLenghOfWarehouse)));
+	std::vector<std::vector<std::vector<Autostore::gridLocation>>> gridLocationVector(xLenghOfWarehouse,std::vector<std::vector<Autostore::gridLocation>>(yLenghOfWarehouse,std::vector<Autostore::gridLocation>(zLenghOfWarehouse)));
+	std::vector<Autostore::bin> queueOfBinRetrival;
+	std::vector<Autostore::bin> oneRoundOfRetrivalTask;
 	
 #endif
 
+	//reserve vectors
+#if 1
+	portsVector.reserve(numOfPorts);
+	firstRobotsVector.reserve(numOfFirstRobots);
+	secondRobotsVector.reserve(numOfSecondRobots);
+	binsVector.reserve(maxNumOfBins);
+	queueOfBinRetrival.reserve(maxNumOfBins);
+	oneRoundOfRetrivalTask.reserve(numOfFirstRobots);
+#endif
 	//objects
 #if 1
 	Autostore::port portObject;
@@ -181,10 +187,11 @@ int main()
 
 	std::cout << "Objects on Warehouse all set!\n";
 #endif
+	//Queue for retrival
+	fillQueueOfBinRetrival(queueOfBinRetrival, "queueOfBinRetrival.txt", binsVector);
 
 
-
-//EXCEL file ------------------------------------------------------------------------
+//EXCEL file ----------------------------------------------------------------------------
 
 	//bothTypeExcel
 #if 1	
@@ -287,28 +294,10 @@ int main()
 	worksheet_write_string(oneTypeWorksheet, 0, 14, "#BTo Relocate", NULL);
 #endif
 
-//Queue -------------------------------------------------------------------------------
-
-#if 1
-	//make a Queue for retrival from shufling the binsVector
-	std::vector<Autostore::bin> queueOfBinRetrival;
-	queueOfBinRetrival.reserve(maxNumOfBins);
-
-	fillQueueOfBinRetrival(queueOfBinRetrival, "queueOfBinRetrival.txt", binsVector);
-
-
-	auto oneTypeQueueOfBinRetrival = queueOfBinRetrival;
-	auto twoTypeQueueOfBinRetrival = queueOfBinRetrival;
-	auto bothTypeQueueOfBinRetrival = queueOfBinRetrival;
-
-	std::vector<Autostore::bin> oneRoundOfRetrivalTask;
-#endif
-
 
 //filling retrivalTaskObject--------------------------------------------------------------
-		
+	//Vectors Copy	
 #if 1
-	//Vectors Copy
 	auto oneTypePortsVector = portsVector;
 	auto twoTypePortsVector = portsVector;
 	auto bothTypePortsVector = portsVector;
@@ -328,6 +317,10 @@ int main()
 	auto oneTypeGridLocationVector = gridLocationVector;
 	auto twoTypeGridLocationVector = gridLocationVector;
 	auto bothTypeGridLocationVector = gridLocationVector;
+
+	auto oneTypeQueueOfBinRetrival = queueOfBinRetrival;
+	auto twoTypeQueueOfBinRetrival = queueOfBinRetrival;
+	auto bothTypeQueueOfBinRetrival = queueOfBinRetrival;
 
 #endif
 
