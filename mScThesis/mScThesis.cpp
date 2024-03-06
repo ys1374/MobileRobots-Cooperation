@@ -88,6 +88,7 @@ int main()
 #endif
 
 //filling Vectors----------------------------------------------------------------------
+	
 	//port
 #if 0
 	for (auto port : PortLocations) {
@@ -120,7 +121,6 @@ int main()
 		secondRobotsVector.push_back(secondRobotObject);
 	}
 #endif
-	
 	//locations and bins
 #if 0
 	for (int k = 0; k < zLenghOfWarehouse; k++) {
@@ -187,9 +187,10 @@ int main()
 
 	std::cout << "Objects on Warehouse all set!\n";
 #endif
+#if 1
 	//Queue for retrival
 	fillQueueOfBinRetrival(queueOfBinRetrival, "queueOfBinRetrival.txt", binsVector);
-
+#endif
 
 //EXCEL file ----------------------------------------------------------------------------
 
@@ -425,7 +426,7 @@ int main()
 
 		oneTypeFinishedRetriveTaskVector.push_back(oneTypeRetrivalTaskObject);
 		
-
+		//shift chech
 #if 1
 		if (oneTypeFirstRobotsVector[oneTypeRetrivalTaskObject.selectedfirstRobot.id].time >= (shiftHours * 60 * 60)) {
 			std::cout << "\n\n\n************************Shift Hours is Passed**************************\n\n\n";
