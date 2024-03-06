@@ -9,7 +9,7 @@
 #include <functional>
 
 bool useSecondRobot{ 0 };
-bool useBoth{ 1 };
+bool useBoth{ 0 };
 #if 1
 const unsigned int filledPercentOfWarehouse{ 80 }; //in %
 double shiftHours{ 8 };
@@ -34,7 +34,7 @@ std::vector<double> cycleTimeOneType;
 
 #endif
 
-//functions-----------------------
+//functions
 #if 1
 int generateRandomNumber(int max);
 void fillQueueOfBinRetrival(std::vector<Autostore::bin>& queueOfBinRetrival, const std::string& filename, std::vector<Autostore::bin> binsVector_);
@@ -58,14 +58,32 @@ int PortLocations[3][3] = {
 
 
 int main()
-{	
-	 
-	//***we need to fill the warehouse with robots and bins objects*****
-	//port objects---------------------------------
+{	//vectors
 #if 1
-	std::vector<Autostore::port> portsVector;// Vector of class objects
-	Autostore::port portObject;
+	std::vector<Autostore::port> portsVector;
+	std::vector<Autostore::firstRobot> firstRobotsVector;
+	std::vector<Autostore::secondRobot> secondRobotsVector;
+	std::vector<Autostore::bin> binsVector;
+	std::vector<std::vector<std::vector<Autostore::gridLocation>>> 
+		gridLocationVector(
+		xLenghOfWarehouse,std::vector<std::vector<Autostore::gridLocation>>(
+		yLenghOfWarehouse,std::vector<Autostore::gridLocation>(
+		zLenghOfWarehouse)));
+	
+#endif
 
+	//objects
+#if 1
+	Autostore::port portObject;
+	Autostore::firstRobot firstRobotObject;
+	Autostore::secondRobot secondRobotObject;
+	Autostore::bin binsObject;
+	Autostore::gridLocation gridLocationObject;
+#endif
+
+//filling Vectors----------------------------------------------------------------------
+	//port
+#if 0
 	for (auto port : PortLocations) {
 		portObject.xLocation = port[0];
 		portObject.yLocation = port[1];
@@ -75,11 +93,8 @@ int main()
 		portsVector.push_back(portObject);
 	}
 #endif
-	//filling first robot-----------------------
-#if 1
-	std::vector<Autostore::firstRobot> firstRobotsVector;// Vector of class objects
-	Autostore::firstRobot firstRobotObject;
-
+	//first robot
+#if 0
 	for (int i = 0; i < numOfFirstRobots; i++) {
 		firstRobotObject.nameFillerFirstRobot(i);
 		firstRobotObject.xLocation = generateRandomNumber(xLenghOfWarehouse-1);
@@ -88,48 +103,20 @@ int main()
 		firstRobotsVector.push_back(firstRobotObject);
 	}
 #endif
-	//second robot------------------------------
-#if 1
-	std::vector<Autostore::secondRobot> secondRobotsVector;// Vector of class objects
-	Autostore::secondRobot secondRobotObject;
-
+	//second robot
+#if 0
 	for (int i = 0; i < numOfSecondRobots; i++) {
 		secondRobotObject.nameFillerSecondRobot(i);
 		secondRobotObject.xLocation = generateRandomNumber(xLenghOfWarehouse-1);
 		secondRobotObject.yLocation = generateRandomNumber(yLenghOfWarehouse-1);
-
 		secondRobotObject.id = i;
-
 		secondRobotObject.bins.reserve(secondRobotCapacity);
-		//Autostore::bin bin;
-		//for (int i = 0; i < secondRobotCapacity; i++) {
-		//	secondRobotObject.bins.push_back(bin);
-		//}
-
 		secondRobotsVector.push_back(secondRobotObject);
 	}
 #endif
-	//bins--------------------------------------
-#if 1
-	std::vector<Autostore::bin> binsVector;// Vector of class objects
-	Autostore::bin binsObject; // fins will fill with locations
-#endif
-
-	//creating gridbins location on grid--------
-#if 1
-	std::vector<std::vector<std::vector<Autostore::gridLocation>>> gridLocationVector(
-		xLenghOfWarehouse,
-		std::vector<std::vector<Autostore::gridLocation>>(
-		yLenghOfWarehouse,
-		std::vector<Autostore::gridLocation>(
-		zLenghOfWarehouse)));// Vector of class objects
-
-	Autostore::gridLocation gridLocationObject;//creating object
-#endif
-
 	
-	//fill locations and bins-------------------------------------------------
-#if 1
+	//locations and bins
+#if 0
 	for (int k = 0; k < zLenghOfWarehouse; k++) {
 		for (int j = 0; j < yLenghOfWarehouse; j++) {
 			for (int i = 0; i < xLenghOfWarehouse; i++) {
@@ -195,27 +182,9 @@ int main()
 	std::cout << "Objects on Warehouse all set!\n";
 #endif
 
-	//make a Queue for retrival from shufling the binsVector-----------------
-#if 1
-	std::vector<Autostore::bin> queueOfBinRetrival;
-	queueOfBinRetrival.reserve(maxNumOfBins);
 
-	fillQueueOfBinRetrival(queueOfBinRetrival, "queueOfBinRetrival.txt", binsVector);
-#endif
 
-	//filling retrivalTaskObject--------------------------------------------------------------
-#if 1
-	Autostore::retrivalTask retrivalTaskObject(portsVector, firstRobotsVector, secondRobotsVector, binsVector, gridLocationVector);
-	std::vector<Autostore::retrivalTask> finishedRetriveTaskVector;
-
-	retrivalTaskObject.constants.xLenghOfWarehouse = xLenghOfWarehouse;
-	retrivalTaskObject.constants.yLenghOfWarehouse = yLenghOfWarehouse;
-	retrivalTaskObject.constants.zLenghOfWarehouse = zLenghOfWarehouse;
-
-	retrivalTaskObject.constants.secondRobotCapacity = secondRobotCapacity;
-#endif
-
-	//filling EXCEL file ------------------------------------------------------------------------
+//EXCEL file ------------------------------------------------------------------------
 
 	//bothTypeExcel
 #if 1	
@@ -318,11 +287,98 @@ int main()
 	worksheet_write_string(oneTypeWorksheet, 0, 14, "#BTo Relocate", NULL);
 #endif
 
+//Queue -------------------------------------------------------------------------------
+
+#if 1
+	//make a Queue for retrival from shufling the binsVector
+	std::vector<Autostore::bin> queueOfBinRetrival;
+	queueOfBinRetrival.reserve(maxNumOfBins);
+
+	fillQueueOfBinRetrival(queueOfBinRetrival, "queueOfBinRetrival.txt", binsVector);
 
 
+	auto oneTypeQueueOfBinRetrival = queueOfBinRetrival;
+	auto twoTypeQueueOfBinRetrival = queueOfBinRetrival;
+	auto bothTypeQueueOfBinRetrival = queueOfBinRetrival;
+
+	std::vector<Autostore::bin> oneRoundOfRetrivalTask;
+#endif
 
 
+//filling retrivalTaskObject--------------------------------------------------------------
+		
+#if 1
+	//Vectors Copy
+	auto oneTypePortsVector = portsVector;
+	auto twoTypePortsVector = portsVector;
+	auto bothTypePortsVector = portsVector;
 
+	auto oneTypeFirstRobotsVector = firstRobotsVector;
+	auto twoTypeFirstRobotsVector = firstRobotsVector;
+	auto bothTypeFirstRobotsVector = firstRobotsVector;
+
+	auto oneTypeSecondRobotsVector = secondRobotsVector;
+	auto twoTypeSecondRobotsVector = secondRobotsVector;
+	auto bothTypeSecondRobotsVector = secondRobotsVector;
+
+	auto oneTypeBinsVector = binsVector;
+	auto twoTypeBinsVector = binsVector;
+	auto bothTypeBinsVector = binsVector;
+
+	auto oneTypeGridLocationVector = gridLocationVector;
+	auto twoTypeGridLocationVector = gridLocationVector;
+	auto bothTypeGridLocationVector = gridLocationVector;
+
+#endif
+
+#if 0
+	std::vector<Autostore::port> portsVector;
+	std::vector<Autostore::firstRobot> firstRobotsVector;
+	std::vector<Autostore::secondRobot> secondRobotsVector;
+	std::vector<Autostore::bin> binsVector;
+	std::vector<std::vector<std::vector<Autostore::gridLocation>>>
+		gridLocationVector(
+			xLenghOfWarehouse, std::vector<std::vector<Autostore::gridLocation>>(
+				yLenghOfWarehouse, std::vector<Autostore::gridLocation>(
+					zLenghOfWarehouse)));
+
+#endif
+
+	//One Type
+#if 1
+	Autostore::retrivalTask oneTypeRetrivalTaskObject(oneTypePortsVector, oneTypeFirstRobotsVector, oneTypeSecondRobotsVector, oneTypeBinsVector, oneTypeGridLocationVector);
+	std::vector<Autostore::retrivalTask> oneTypeFinishedRetriveTaskVector;
+
+	oneTypeRetrivalTaskObject.constants.xLenghOfWarehouse = xLenghOfWarehouse;
+	oneTypeRetrivalTaskObject.constants.yLenghOfWarehouse = yLenghOfWarehouse;
+	oneTypeRetrivalTaskObject.constants.zLenghOfWarehouse = zLenghOfWarehouse;
+
+	oneTypeRetrivalTaskObject.constants.secondRobotCapacity = secondRobotCapacity;
+#endif
+
+	//Two type
+#if 0
+	Autostore::retrivalTask oneTypeRetrivalTaskObject(portsVector, firstRobotsVector, secondRobotsVector, binsVector, oneTypegridLocationVector);
+	std::vector<Autostore::retrivalTask> finishedRetriveTaskVector;
+
+	oneTypeRetrivalTaskObject.constants.xLenghOfWarehouse = xLenghOfWarehouse;
+	oneTypeRetrivalTaskObject.constants.yLenghOfWarehouse = yLenghOfWarehouse;
+	oneTypeRetrivalTaskObject.constants.zLenghOfWarehouse = zLenghOfWarehouse;
+
+	oneTypeRetrivalTaskObject.constants.secondRobotCapacity = secondRobotCapacity;
+#endif
+
+	//Both type
+#if 0
+	Autostore::retrivalTask oneTypeRetrivalTaskObject(portsVector, firstRobotsVector, secondRobotsVector, binsVector, oneTypegridLocationVector);
+	std::vector<Autostore::retrivalTask> finishedRetriveTaskVector;
+
+	oneTypeRetrivalTaskObject.constants.xLenghOfWarehouse = xLenghOfWarehouse;
+	oneTypeRetrivalTaskObject.constants.yLenghOfWarehouse = yLenghOfWarehouse;
+	oneTypeRetrivalTaskObject.constants.zLenghOfWarehouse = zLenghOfWarehouse;
+
+	oneTypeRetrivalTaskObject.constants.secondRobotCapacity = secondRobotCapacity;
+#endif
 
 
 
@@ -330,72 +386,72 @@ int main()
 
 	
 	//one type
-#if 0
-	while ((!queueOfBinRetrival.empty()) && (!useSecondRobot) && (!useBoth))
+#if 1
+	while ((!oneTypeQueueOfBinRetrival.empty()) && (!useSecondRobot) && (!useBoth))
 	{	
-		std::cout << "\nRetriving " << queueOfBinRetrival[0].locationName;
+		std::cout << "\nRetriving " << oneTypeQueueOfBinRetrival[0].locationName;
 		//if (queueOfBinRetrival[0].xLocation == 0 && queueOfBinRetrival[0].yLocation == 0) {
 		//	queueOfBinRetrival.erase(queueOfBinRetrival.begin());
 		//}
-		if (queueOfBinRetrival[0].xLocation == 0 && queueOfBinRetrival[0].yLocation == 0) {
-			queueOfBinRetrival.erase(queueOfBinRetrival.begin());
+		if (oneTypeQueueOfBinRetrival[0].xLocation == 0 && oneTypeQueueOfBinRetrival[0].yLocation == 0) {
+			oneTypeQueueOfBinRetrival.erase(oneTypeQueueOfBinRetrival.begin());
 			std::cout << "--------->This is deleted from queue!";
 			continue;
 		}
-		if (queueOfBinRetrival[0].zLocation == 0) {
-			queueOfBinRetrival.erase(queueOfBinRetrival.begin());
+		if (oneTypeQueueOfBinRetrival[0].zLocation == 0) {
+			oneTypeQueueOfBinRetrival.erase(oneTypeQueueOfBinRetrival.begin());
 			std::cout << "--------->This is deleted from queue!";
 			continue;
 		}
 
 
-		retrivalTaskObject.reset();
-		retrivalTaskObject.id = retrivalTaskId;
-		retrivalTaskObject.binToRetrive = binsVector[queueOfBinRetrival[0].binId];
+		oneTypeRetrivalTaskObject.reset();
+		oneTypeRetrivalTaskObject.id = retrivalTaskId;
+		oneTypeRetrivalTaskObject.binToRetrive = oneTypeBinsVector[oneTypeQueueOfBinRetrival[0].binId];
 		
-		worksheet_write_string(oneTypeWorksheet, retrivalTaskId + 1, 0, retrivalTaskObject.binToRetrive.locationName.c_str(), NULL);
-		worksheet_write_number(oneTypeWorksheet, retrivalTaskId + 1, 9, retrivalTaskObject.binToRetrive.xLocation, NULL);
-		worksheet_write_number(oneTypeWorksheet, retrivalTaskId + 1, 10, retrivalTaskObject.binToRetrive.yLocation, NULL);
-		worksheet_write_number(oneTypeWorksheet, retrivalTaskId + 1, 11, retrivalTaskObject.binToRetrive.zLocation, NULL);
+		worksheet_write_string(oneTypeWorksheet, retrivalTaskId + 1, 0, oneTypeRetrivalTaskObject.binToRetrive.locationName.c_str(), NULL);
+		worksheet_write_number(oneTypeWorksheet, retrivalTaskId + 1, 9, oneTypeRetrivalTaskObject.binToRetrive.xLocation, NULL);
+		worksheet_write_number(oneTypeWorksheet, retrivalTaskId + 1, 10, oneTypeRetrivalTaskObject.binToRetrive.yLocation, NULL);
+		worksheet_write_number(oneTypeWorksheet, retrivalTaskId + 1, 11, oneTypeRetrivalTaskObject.binToRetrive.zLocation, NULL);
 
-		retrivalTaskObject.firstRobotSelection(oneTypeWorksheet);
-		retrivalTaskObject.portSelection(oneTypeWorksheet);
+		oneTypeRetrivalTaskObject.firstRobotSelection(oneTypeWorksheet);
+		oneTypeRetrivalTaskObject.portSelection(oneTypeWorksheet);
 
 
-		double cycleTime = retrivalTaskObject.oneTypeCycleTime(oneTypeWorksheet);
+		double cycleTime = oneTypeRetrivalTaskObject.oneTypeCycleTime(oneTypeWorksheet);
 		//cycleTimeOneType.push_back(cycleTime);
 		
 
-		firstRobotsVector[retrivalTaskObject.selectedfirstRobot.id].time =
-			firstRobotsVector[retrivalTaskObject.selectedfirstRobot.id].time + cycleTime; // change robot time
+		oneTypeFirstRobotsVector[oneTypeRetrivalTaskObject.selectedfirstRobot.id].time =
+			oneTypeFirstRobotsVector[oneTypeRetrivalTaskObject.selectedfirstRobot.id].time + cycleTime; // change robot time
 		
-		firstRobotsVector[retrivalTaskObject.selectedfirstRobot.id].numOfTasks++;
+		oneTypeFirstRobotsVector[oneTypeRetrivalTaskObject.selectedfirstRobot.id].numOfTasks++;
 
-		queueOfBinRetrival.erase(queueOfBinRetrival.begin());
+		oneTypeQueueOfBinRetrival.erase(oneTypeQueueOfBinRetrival.begin());
 		
 
-		finishedRetriveTaskVector.push_back(retrivalTaskObject);
+		oneTypeFinishedRetriveTaskVector.push_back(oneTypeRetrivalTaskObject);
 		
 
 #if 1
-		if (firstRobotsVector[retrivalTaskObject.selectedfirstRobot.id].time >= (shiftHours * 60 * 60)) {
+		if (oneTypeFirstRobotsVector[oneTypeRetrivalTaskObject.selectedfirstRobot.id].time >= (shiftHours * 60 * 60)) {
 			std::cout << "\n\n\n************************Shift Hours is Passed**************************\n\n\n";
 
-			std::cout << "Percentage of retrived Bins" << (finishedRetriveTaskVector.size() / maxNumOfBins) * 100 << "\n";
+			std::cout << "Percentage of retrived Bins" << (oneTypeFinishedRetriveTaskVector.size() / maxNumOfBins) * 100 << "\n";
 
-			for (auto robot : firstRobotsVector) {
+			for (auto robot : oneTypeFirstRobotsVector) {
 				std::cout << "Robot Id:" << robot.id << " Robot time: " << robot.time << " Robot Tasks: " << robot.numOfTasks << "\n";
 			}
 
-			std::cout << "total num of retrived Bin: " << finishedRetriveTaskVector.size()
-				<< " throughput/hour: " << finishedRetriveTaskVector.size()/shiftHours;
+			std::cout << "total num of retrived Bin: " << oneTypeFinishedRetriveTaskVector.size()
+				<< " throughput/hour: " << oneTypeFinishedRetriveTaskVector.size()/shiftHours;
 
 			break;
 		}
 		
 #endif	
 		if (retrivalTaskId % numOfFirstRobots == 1) {
-			for (auto& robot : firstRobotsVector) {
+			for (auto& robot : oneTypeFirstRobotsVector) {
 				robot.isBusy = false;
 			}
 			//break;
@@ -406,24 +462,24 @@ int main()
 		
 	}
 	
-	if (!useSecondRobot) { workbook_close(oneTypeWorkbook); }
+	
 #endif
 
 
 	//two type
 #if 0
-
-	while ((!queueOfBinRetrival.empty()) && (useSecondRobot) && (!useBoth) )
+	retrivalTaskId{ 0 };
+	while ((!twoTypeQueueOfBinRetrival.empty()) && (useSecondRobot) && (!useBoth) )
 	{
-		std::cout << "\nRetriving " << queueOfBinRetrival[0].locationName ;
+		std::cout << "\nRetriving " << twoTypeQueueOfBinRetrival[0].locationName ;
 
-		if (queueOfBinRetrival[0].xLocation == 0 && queueOfBinRetrival[0].yLocation == 0) {
-			queueOfBinRetrival.erase(queueOfBinRetrival.begin());
+		if (twoTypeQueueOfBinRetrival[0].xLocation == 0 && twoTypeQueueOfBinRetrival[0].yLocation == 0) {
+			twoTypeQueueOfBinRetrival.erase(twoTypeQueueOfBinRetrival.begin());
 			std::cout << "--------->This is deleted from queue!";
 			continue;
 		}
-		if (queueOfBinRetrival[0].zLocation == 0) {
-			queueOfBinRetrival.erase(queueOfBinRetrival.begin());
+		if (twoTypeQueueOfBinRetrival[0].zLocation == 0) {
+			twoTypeQueueOfBinRetrival.erase(twoTypeQueueOfBinRetrival.begin());
 			std::cout << "--------->This is deleted from queue!";
 			continue;
 		}
@@ -431,7 +487,7 @@ int main()
 
 		retrivalTaskObject.reset();
 		retrivalTaskObject.id = retrivalTaskId;
-		retrivalTaskObject.binToRetrive = binsVector[queueOfBinRetrival[0].binId];
+		retrivalTaskObject.binToRetrive = binsVector[twoTypeQueueOfBinRetrival[0].binId];
 
 		worksheet_write_string(twoTypeWorksheet, retrivalTaskId + 1, 0, retrivalTaskObject.binToRetrive.locationName.c_str(), NULL);
 		worksheet_write_number(twoTypeWorksheet, retrivalTaskId + 1, 9, retrivalTaskObject.binToRetrive.xLocation, NULL);
@@ -445,7 +501,7 @@ int main()
 		double cycleTime = retrivalTaskObject.twoTypeCycleTime(twoTypeWorksheet);
 
 
-		queueOfBinRetrival.erase(queueOfBinRetrival.begin());
+		twoTypeQueueOfBinRetrival.erase(twoTypeQueueOfBinRetrival.begin());
 		finishedRetriveTaskVector.push_back(retrivalTaskObject);
 
 		if (retrivalTaskId == 600) {
@@ -456,29 +512,29 @@ int main()
 
 	}
 
-	if (useSecondRobot) { workbook_close(twoTypeWorkbook); }
+	
 
 #endif
 
 	
 	//Both type
-#if 1
-	std::vector<Autostore::bin> oneRoundOfRetrivalTask;
+#if 0
 	
-	while ((!queueOfBinRetrival.empty()) && useBoth){
+	retrivalTaskId{ 0 };
+	while ((!bothTypeQueueOfBinRetrival.empty()) && useBoth){
 
 		if (oneRoundOfRetrivalTask.size() == 0) {
 
 			if (retrivalTaskId != 0) {
 
 				for (int i = 0; i < numOfFirstRobots; i++) {
-					queueOfBinRetrival.erase(queueOfBinRetrival.begin());
+					bothTypeQueueOfBinRetrival.erase(bothTypeQueueOfBinRetrival.begin());
 				}
 
 			}
 
 			for (int i = 0; i < numOfFirstRobots; i++) {
-				oneRoundOfRetrivalTask.push_back(queueOfBinRetrival[i]);
+				oneRoundOfRetrivalTask.push_back(bothTypeQueueOfBinRetrival[i]);
 			}
 
 			//std::sort(oneRoundOfRetrivalTask.begin(), oneRoundOfRetrivalTask.end(), compareByZLocation();
@@ -549,14 +605,19 @@ int main()
 
 
 
-	if (useBoth) { 
-		workbook_close(bothTypeWorkbook); }
+	
 
 #endif
 
 
+
+
+	if (!useSecondRobot) { workbook_close(oneTypeWorkbook); }
+	if (useSecondRobot) { workbook_close(twoTypeWorkbook); }
+	if (useBoth) { workbook_close(bothTypeWorkbook); }
+
 	//error handeling
-#if 1
+#if 0
 	if (queueOfBinRetrival.empty()){
 		for (auto &robot : firstRobotsVector) {
 			std::cout << "Robot Id:" << robot.id << " Robot time: " << robot.time << "\n";
