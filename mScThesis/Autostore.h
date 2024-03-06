@@ -290,8 +290,8 @@ namespace Autostore {
 
 			firstRobotsVector_[selectedfirstRobot.id].isBusy = true;
 
-			worksheet_write_number(oneTypeWorksheet_, id + 1, 1, firstRobotsVector_[selectedfirstRobot.id].xLocation, NULL);
-			worksheet_write_number(oneTypeWorksheet_, id + 1, 2, firstRobotsVector_[selectedfirstRobot.id].yLocation, NULL);
+			worksheet_write_number(oneTypeWorksheet_, id + 1, 4, firstRobotsVector_[selectedfirstRobot.id].xLocation, NULL);
+			worksheet_write_number(oneTypeWorksheet_, id + 1, 5, firstRobotsVector_[selectedfirstRobot.id].yLocation, NULL);
 			//std::cout << "FirstRobot:" <<
 			//	"Id[" << selectedfirstRobot.id << "]" <<
 			//	"x[" << selectedfirstRobot.xLocation << "]" <<
@@ -317,8 +317,8 @@ namespace Autostore {
 		
 			}
 
-			worksheet_write_number(oneTypeWorksheet_, id + 1, 3, selectedPort.xLocation, NULL);
-			worksheet_write_number(oneTypeWorksheet_, id + 1, 4, selectedPort.yLocation, NULL);
+			worksheet_write_number(oneTypeWorksheet_, id + 1, 8, selectedPort.xLocation, NULL);
+			worksheet_write_number(oneTypeWorksheet_, id + 1, 9, selectedPort.yLocation, NULL);
 			//std::cout << " Port:  " <<
 			//	"Id[" << selectedPort.id << "]" <<
 			//	"x[" << selectedPort.xLocation << "]" <<
@@ -387,9 +387,9 @@ namespace Autostore {
 				//	"Id[" << secondRobotsVector_[selectedSecondRobotId].id << "]" <<
 				//	"x[" << secondRobotsVector_[selectedSecondRobotId].xLocation << "]" <<
 				//	"y[" << secondRobotsVector_[selectedSecondRobotId].yLocation << "] ";
-				worksheet_write_number(oneTypeWorksheet_, id + 1, 14, secondRobotsVector_[selectedSecondRobotId].id, NULL);
-				worksheet_write_number(oneTypeWorksheet_, id + 1, 15, secondRobotsVector_[selectedSecondRobotId].xLocation, NULL);
-				worksheet_write_number(oneTypeWorksheet_, id + 1, 16, secondRobotsVector_[selectedSecondRobotId].yLocation, NULL);
+
+				worksheet_write_number(oneTypeWorksheet_, id + 1, 6, secondRobotsVector_[selectedSecondRobotId].xLocation, NULL);
+				worksheet_write_number(oneTypeWorksheet_, id + 1, 7, secondRobotsVector_[selectedSecondRobotId].yLocation, NULL);
 
 			}
 
@@ -544,23 +544,24 @@ namespace Autostore {
 		//one type CT
 #if 1
 
-		double oneTypeCycleTime(lxw_worksheet* oneTypeWorksheet_ )
+		double oneTypeCycleTime(lxw_worksheet* worksheet_ )
 		{
 			//std::cout << "\nrobotToBin ... ";
 			auto firstRobotToBinCycleTime_ = firstRobotToBinCycleTime();
-			worksheet_write_number(oneTypeWorksheet_, id + 1, 5, firstRobotToBinCycleTime_, NULL);
+			worksheet_write_number(worksheet_, id + 1, 10, firstRobotToBinCycleTime_, NULL);
 			//std::cout << "robotToBinCycleTime: " << firstRobotToBinCycleTime_ << "\n\n";
 
 
-			auto elevatingCycleTime_ = oneTypeElevatingCycleTime(oneTypeWorksheet_);
-			worksheet_write_number(oneTypeWorksheet_, id + 1, 6, elevatingCycleTime_, NULL);
+			auto elevatingCycleTime_ = oneTypeElevatingCycleTime(worksheet_);
+			worksheet_write_number(worksheet_, id + 1, 12, elevatingCycleTime_, NULL);
+			worksheet_write_number(worksheet_, id + 1, 15, elevatingCycleTime_, NULL);
 			//std::cout << "\nelevatingCycleTime: " << elevatingCycleTime_ << "\n";
 
 
 
 			//std::cout << "\nrobotAndBinToPort ... ";
 			auto binToPortCycleTime_ = 2 * binToPortCycleTime();
-			worksheet_write_number(oneTypeWorksheet_, id + 1, 7, binToPortCycleTime_, NULL);
+			worksheet_write_number(worksheet_, id + 1, 14, binToPortCycleTime_, NULL);
 			//std::cout << "robotAndBinToPortCycleTime: " << binToPortCycleTime_ << "\n\n";
 
 			//****************************************************************
@@ -585,7 +586,7 @@ namespace Autostore {
 			firstRobotsVector_[selectedfirstRobot.id].xLocation = selectedPort.xLocation;
 			firstRobotsVector_[selectedfirstRobot.id].yLocation = selectedPort.yLocation;
 			//*****************************************************************
-			oneTypeLoweringCycleTime(oneTypeWorksheet_);
+			oneTypeLoweringCycleTime(worksheet_);
 			auto oneTypeLoweringCycleTime_ = elevatingCycleTime_;
 			//*****************************************************************
 			auto totalCycleTime{ 
@@ -594,7 +595,7 @@ namespace Autostore {
 				oneTypeLoweringCycleTime_ +
 				binToPortCycleTime_ };
 
-			worksheet_write_number(oneTypeWorksheet_, id + 1, 8, totalCycleTime, NULL);
+			worksheet_write_number(worksheet_, id + 1, 19, totalCycleTime, NULL);
 			//std::cout << " FirstCycleTime: " << totalCycleTime;
 
 			return totalCycleTime;
@@ -652,48 +653,24 @@ namespace Autostore {
 
 			auto pathBinToPort = pathObject.findPath({ binX_, binY_ }, { portX_, portY_ });
 
-			//---------------------------------------------------------------------
-#if 0
-			std::cout << "\npathBinToPort----------------------------------------------------------------------\n";
-			for (auto& coordinate : pathBinToPort) {
-				std::cout << coordinate.x << "\t";
-			}
-
-			std::cout << "\n";
-			for (auto& coordinate : pathBinToPort) {
-				std::cout << coordinate.y << "\t";
-			}
-#endif
 			auto binToPortCost = onGridRobotMovementCycleTime(pathBinToPort);
-
-
-			//change location of robot and bin---------------------------------------------
-
-#if 0
-			firstRobotsVector_[selectedfirstRobot.id].xLocation = portX_;
-			firstRobotsVector_[selectedfirstRobot.id].yLocation = portY_;
-
-			gridLocationVector_[binToRetrive.xLocation][binToRetrive.yLocation][binToRetrive.zLocation].gridReset();
-			binsVector_[binToRetrive.binId].binReset();
- #endif
-
 
 			return binToPortCost;
 		}
 				
 		//************************************************************************************
 
-		double oneTypeElevatingCycleTime(lxw_worksheet* oneTypeWorksheet_) {
+		double oneTypeElevatingCycleTime(lxw_worksheet* worksheet_) {
 
 			auto elevatingCells = constants.zLenghOfWarehouse - binToRetrive.zLocation + 1;
 			double cycleTime = elevatingCells * constants.firstRobotTowardZCellTime;
 			cycleTime = cycleTime + constants.lockUnlockTime;
 			
 			goalBinIsDirectAccess();
-			auto relocationCT = reLocationCycleTime(oneTypeWorksheet_);
+			auto relocationCT = reLocationCycleTime(worksheet_);
 			
-			worksheet_write_number(oneTypeWorksheet_, id + 1, 12, cycleTime, NULL);
-			worksheet_write_number(oneTypeWorksheet_, id + 1, 13, relocationCT, NULL);
+			worksheet_write_number(worksheet_, id + 1, 12, cycleTime, NULL);
+			//worksheet_write_number(worksheet_, id + 1, 13, relocationCT, NULL);
 
 			if (directAccessToBin) {
 				//std::cout << "\ndirectAccessToBin\n";
@@ -704,7 +681,7 @@ namespace Autostore {
 			}
 		}
 
-		void oneTypeLoweringCycleTime(lxw_worksheet* oneTypeWorksheet_) {
+		void oneTypeLoweringCycleTime(lxw_worksheet* worksheet_) {
 
 
 
@@ -744,7 +721,7 @@ namespace Autostore {
 			
 		}
 
-		double reLocationCycleTime(lxw_worksheet* oneTypeWorksheet_) {
+		double reLocationCycleTime(lxw_worksheet* worksheet_) {
 
 			//std::cout << "No direct Access\n" << "relocation in progress ...\n";
 
@@ -769,7 +746,7 @@ namespace Autostore {
 				std::cout << "";
 				topBinForRelocationNum = findTopBin(binX, binY);
 			}
-			worksheet_write_number(oneTypeWorksheet_, id + 1, 14, numOfBinToRelocate, NULL);
+			worksheet_write_number(worksheet_, id + 1, 14, numOfBinToRelocate, NULL);
 			//std::cout << "numOfBinToRelocate: " << numOfBinToRelocate << "";
 
 
@@ -938,22 +915,24 @@ namespace Autostore {
 
 		double twoTypeCycleTime(lxw_worksheet* oneTypeWorksheet_)
 		{
+			auto firstRobotToBinCycleTime_ = firstRobotToBinCycleTime();
+			//std::cout << "\nfirstRobotToBinCycleTime: " << firstRobotToBinCycleTime_ ;
+			worksheet_write_number(oneTypeWorksheet_, id + 1, 10, firstRobotToBinCycleTime_, NULL);
+
 			auto secondRobotToBinCycleTime_ = secondRobotToBinCycleTime();
 			//std::cout << "\nsecondRobotToBinCycleTime: " << secondRobotToBinCycleTime_ ;
-			worksheet_write_number(oneTypeWorksheet_, id + 1, 5, secondRobotToBinCycleTime_, NULL);
+			worksheet_write_number(oneTypeWorksheet_, id + 1, 11, secondRobotToBinCycleTime_, NULL);
 
 			auto twoTypeElevatingCycleTime_ = twoTypeElevatingCycleTime();/////////////////////////////////////
 			//std::cout << "\ntwoTypeElevatingCycleTime: " << twoTypeElevatingCycleTime_ ;
-			worksheet_write_number(oneTypeWorksheet_, id + 1, 6, twoTypeElevatingCycleTime_, NULL);
+			worksheet_write_number(oneTypeWorksheet_, id + 1, 13, twoTypeElevatingCycleTime_, NULL);
 
-			auto firstRobotToBinCycleTime_ = firstRobotToBinCycleTime();
-			//std::cout << "\nfirstRobotToBinCycleTime: " << firstRobotToBinCycleTime_ ;
-			worksheet_write_number(oneTypeWorksheet_, id + 1, 7, firstRobotToBinCycleTime_, NULL);
+
 
 			//std::cout << "\nrobotAndBinToPort ... ";
 			auto binToPortCycleTime_ = binToPortCycleTime();
 			//std::cout << "\nrobotAndBinToPortCycleTime: " << binToPortCycleTime_;
-			worksheet_write_number(oneTypeWorksheet_, id + 1, 8, binToPortCycleTime_, NULL);
+			worksheet_write_number(oneTypeWorksheet_, id + 1, 14, binToPortCycleTime_, NULL);
 
 
 
@@ -992,7 +971,7 @@ namespace Autostore {
 
 			auto twoTypeLoweringCycleTime_ = twoTypeLoweringCycleTime();
 			//std::cout << "\ntwoTypeLoweringCycleTime: " << twoTypeLoweringCycleTime_;
-			worksheet_write_number(oneTypeWorksheet_, id + 1, 12, twoTypeLoweringCycleTime_, NULL);
+			worksheet_write_number(oneTypeWorksheet_, id + 1, 16, twoTypeLoweringCycleTime_, NULL);
 
 			auto robotToBinCycleTime_{ 0.0 };
 			if (firstRobotToBinCycleTime_ > secondRobotToBinCycleTime_) { robotToBinCycleTime_ = firstRobotToBinCycleTime_; }
@@ -1005,7 +984,7 @@ namespace Autostore {
 				twoTypeElevatingCycleTime_ +
 				binToPortCycleTime_ +
 				twoTypeLoweringCycleTime_;
-			worksheet_write_number(oneTypeWorksheet_, id + 1, 13, totalCycleTime, NULL);
+			worksheet_write_number(oneTypeWorksheet_, id + 1, 19, totalCycleTime, NULL);
 
 			std::cout << " 2ndCycleTime: " << totalCycleTime;
 			
