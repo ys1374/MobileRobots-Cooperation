@@ -329,6 +329,17 @@ int main()
 	auto twoTypeGridLocationVector = gridLocationVector;
 	auto bothTypeGridLocationVector = gridLocationVector;
 
+	int counter{ 0 };
+	while (1) {
+		if (queueOfBinRetrival[counter].zLocation == 0) {
+			queueOfBinRetrival.erase(queueOfBinRetrival.begin() + counter);
+		}
+		counter++;
+		if (counter >= queueOfBinRetrival.size()) {
+			break;
+		}
+	}
+
 	auto oneTypeQueueOfBinRetrival = queueOfBinRetrival;
 	auto twoTypeQueueOfBinRetrival = queueOfBinRetrival;
 	auto bothTypeQueueOfBinRetrival = queueOfBinRetrival;
@@ -383,16 +394,16 @@ int main()
 	{	
 		std::cout << "\nRetriving " << oneTypeQueueOfBinRetrival[0].locationName;
 
-		if (oneTypeQueueOfBinRetrival[0].zLocation == 0) {
-			oneTypeQueueOfBinRetrival.erase(oneTypeQueueOfBinRetrival.begin());
-			std::cout << "--------->This is deleted from queue!";
-			continue;
-		}
+		//if (oneTypeQueueOfBinRetrival[0].zLocation == 0) {
+		//	oneTypeQueueOfBinRetrival.erase(oneTypeQueueOfBinRetrival.begin());
+		//	std::cout << "--------->This is deleted from queue!";
+		//	continue;
+		//}
 
 
-		if (oneTypeQueueOfBinRetrival[0].xLocation == 0 && oneTypeQueueOfBinRetrival[0].yLocation == 8 && oneTypeQueueOfBinRetrival[0].zLocation == 9) {
-			std::cout << "";
-		}
+		//if (oneTypeQueueOfBinRetrival[0].xLocation == 0 && oneTypeQueueOfBinRetrival[0].yLocation == 8 && oneTypeQueueOfBinRetrival[0].zLocation == 9) {
+		//	std::cout << "";
+		//}
 
 
 
@@ -461,11 +472,11 @@ int main()
 	{
 		std::cout << "\nRetriving " << twoTypeQueueOfBinRetrival[0].locationName ;
 
-		if (twoTypeQueueOfBinRetrival[0].zLocation == 0) {
-			twoTypeQueueOfBinRetrival.erase(twoTypeQueueOfBinRetrival.begin());
-			std::cout << "--------->This is deleted from queue!";
-			continue;
-		}
+		//if (twoTypeQueueOfBinRetrival[0].zLocation == 0) {
+		//	twoTypeQueueOfBinRetrival.erase(twoTypeQueueOfBinRetrival.begin());
+		//	std::cout << "--------->This is deleted from queue!";
+		//	continue;
+		//}
 
 
 		twoTypeRetrivalTaskObject.reset();
@@ -511,18 +522,6 @@ int main()
 #if 1
 
 	std::cout << "***********************Both type*******************************" ;
-
-	int counter{ 0 };
-	while (1) {
-		if (bothTypeQueueOfBinRetrival[counter].zLocation == 0) {
-			bothTypeQueueOfBinRetrival.erase(bothTypeQueueOfBinRetrival.begin() + counter);
-		}
-		counter++;
-		if (counter >= bothTypeQueueOfBinRetrival.size()) {
-			break;
-		}
-	}
-
 
 	retrivalTaskId = 0;
 	while (!bothTypeQueueOfBinRetrival.empty()){
