@@ -384,7 +384,7 @@ int main()
 
 
 
-
+	iteration = queueOfBinRetrival.size();
 // Throughput------------------------------------------------------------------------------------------
 
 	//one type
