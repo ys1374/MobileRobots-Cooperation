@@ -258,6 +258,10 @@ namespace Autostore {
 #if 1
 		void reset() {
 
+
+			directionCost = 0;
+			numOfBinToRelocate = 0;
+
 			id = -1;
 
 			minCostRobotToBin = 1000000000 ;
@@ -279,7 +283,7 @@ namespace Autostore {
 
 				Cost_ = manhattanCostFirstRobot(robot);
 
-				if (Cost_ < minCostRobotToBin && robot.isBusy == false) {
+				if (Cost_ < minCostRobotToBin && firstRobotsVector_[robot.id].isBusy == false) {
 					
 					minCostRobotToBin = Cost_;
 					selectedfirstRobot = robot;			

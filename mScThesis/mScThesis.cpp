@@ -8,9 +8,10 @@
 #include <algorithm>
 #include <functional>
 
-bool useSecondRobot{ 0 };
-bool useBoth{ 0 };
-int iteration{ 300 };
+
+const unsigned int numOfFirstRobots{ 3 };
+const unsigned int numOfSecondRobots{ 2 };
+
 #if 1
 const unsigned int filledPercentOfWarehouse{ 80 }; //in %
 double shiftHours{ 8 };
@@ -20,8 +21,7 @@ double shiftHours{ 8 };
 const unsigned int xLenghOfWarehouse{ 30 }; //max x size of gird
 const unsigned int yLenghOfWarehouse{ 30 }; //max y size of gird
 const unsigned int zLenghOfWarehouse{ 20 }; //max num of bins in a column
-const unsigned int numOfFirstRobots{ 3 };
-const unsigned int numOfSecondRobots{ 2 };
+
 const unsigned int secondRobotCapacity{ 5 };
 const unsigned int numOfPorts{ 3 };
 
@@ -32,7 +32,7 @@ long long int retrivalTaskId{ 0 };
 
 unsigned int numOfGridLocations{ xLenghOfWarehouse * yLenghOfWarehouse * zLenghOfWarehouse };
 unsigned int maxNumOfBins{ xLenghOfWarehouse * yLenghOfWarehouse * zLenghOfWarehouse * filledPercentOfWarehouse / 100 };
-
+int iteration{ 300 };
 
 #endif
 
@@ -329,17 +329,6 @@ int main()
 	auto twoTypeGridLocationVector = gridLocationVector;
 	auto bothTypeGridLocationVector = gridLocationVector;
 
-	int counter{ 0 };
-	while (1) {
-		if (queueOfBinRetrival[counter].zLocation == 0) {
-			queueOfBinRetrival.erase(queueOfBinRetrival.begin() + counter);
-		}
-		counter++;
-		if (counter >= queueOfBinRetrival.size()) {
-			break;
-		}
-	}
-
 	auto oneTypeQueueOfBinRetrival = queueOfBinRetrival;
 	auto twoTypeQueueOfBinRetrival = queueOfBinRetrival;
 	auto bothTypeQueueOfBinRetrival = queueOfBinRetrival;
@@ -387,35 +376,27 @@ int main()
 	iteration = queueOfBinRetrival.size();
 // Throughput------------------------------------------------------------------------------------------
 
+
 	//one type
-#if 1
+	//numOfFirstRobots = numOfFirstRobots_ + numOfSecondRobots_;
+	//numOfSecondRobots = 0;
+#if 0
 	std::cout << "***********************One Type*******************************";
 	while ((!oneTypeQueueOfBinRetrival.empty()))
 	{	
+
+
+
 		std::cout << "\nRetriving " << oneTypeQueueOfBinRetrival[0].locationName;
-
-		//if (oneTypeQueueOfBinRetrival[0].zLocation == 0) {
-		//	oneTypeQueueOfBinRetrival.erase(oneTypeQueueOfBinRetrival.begin());
-		//	std::cout << "--------->This is deleted from queue!";
-		//	continue;
-		//}
-
-
-		//if (oneTypeQueueOfBinRetrival[0].xLocation == 0 && oneTypeQueueOfBinRetrival[0].yLocation == 8 && oneTypeQueueOfBinRetrival[0].zLocation == 9) {
-		//	std::cout << "";
-		//}
-
-
-
 
 		oneTypeRetrivalTaskObject.reset();
 		oneTypeRetrivalTaskObject.id = retrivalTaskId;
 		oneTypeRetrivalTaskObject.binToRetrive = oneTypeBinsVector[oneTypeQueueOfBinRetrival[0].binId];
 		
-		worksheet_write_string(oneTypeWorksheet, retrivalTaskId + 1, 0, oneTypeRetrivalTaskObject.binToRetrive.locationName.c_str(), NULL);
-		worksheet_write_number(oneTypeWorksheet, retrivalTaskId + 1, 1, oneTypeRetrivalTaskObject.binToRetrive.xLocation, NULL);
-		worksheet_write_number(oneTypeWorksheet, retrivalTaskId + 1, 2, oneTypeRetrivalTaskObject.binToRetrive.yLocation, NULL);
-		worksheet_write_number(oneTypeWorksheet, retrivalTaskId + 1, 3, oneTypeRetrivalTaskObject.binToRetrive.zLocation, NULL);
+		worksheet_write_string(oneTypeWorksheet, retrivalTaskId + 1, 0, oneTypeQueueOfBinRetrival[0].locationName.c_str(), NULL);
+		worksheet_write_number(oneTypeWorksheet, retrivalTaskId + 1, 1, oneTypeQueueOfBinRetrival[0].xLocation, NULL);
+		worksheet_write_number(oneTypeWorksheet, retrivalTaskId + 1, 2, oneTypeQueueOfBinRetrival[0].yLocation, NULL);
+		worksheet_write_number(oneTypeWorksheet, retrivalTaskId + 1, 3, oneTypeQueueOfBinRetrival[0].zLocation, NULL);
 
 		oneTypeRetrivalTaskObject.firstRobotSelection();
 		worksheet_write_number(oneTypeWorksheet, retrivalTaskId + 1, 4, oneTypeFirstRobotsVector[oneTypeRetrivalTaskObject.selectedfirstRobot.id].xLocation, NULL);
@@ -429,17 +410,23 @@ int main()
 
 		double cycleTime = oneTypeRetrivalTaskObject.oneTypeCycleTime(oneTypeWorksheet);
 		worksheet_write_number(oneTypeWorksheet, retrivalTaskId + 1, 16, cycleTime, NULL);
-		worksheet_write_number(bothTypeWorksheet, retrivalTaskId + 1, 18, cycleTime, NULL);
+		worksheet_write_number(oneTypeWorksheet, retrivalTaskId + 1, 17, retrivalTaskId, NULL);
 
 		oneTypeQueueOfBinRetrival.erase(oneTypeQueueOfBinRetrival.begin());
 		oneTypeFinishedRetriveTaskVector.push_back(oneTypeRetrivalTaskObject);
 		
+
 		//shift chech
-#if 0
+#if 1				
+		oneTypeFirstRobotsVector[oneTypeRetrivalTaskObject.selectedfirstRobot.id].time =
+			oneTypeFirstRobotsVector[oneTypeRetrivalTaskObject.selectedfirstRobot.id].time + cycleTime; // change robot time
+		
+		oneTypeFirstRobotsVector[oneTypeRetrivalTaskObject.selectedfirstRobot.id].numOfTasks++;
+
 		if (oneTypeFirstRobotsVector[oneTypeRetrivalTaskObject.selectedfirstRobot.id].time >= (shiftHours * 60 * 60)) {
 			std::cout << "\n\n\n************************Shift Hours is Passed**************************\n\n\n";
 
-			std::cout << "Percentage of retrived Bins" << (oneTypeFinishedRetriveTaskVector.size() / maxNumOfBins) * 100 << "\n";
+			
 
 			for (auto robot : oneTypeFirstRobotsVector) {
 				std::cout << "Robot Id:" << robot.id << " Robot time: " << robot.time << " Robot Tasks: " << robot.numOfTasks << "\n";
@@ -450,43 +437,45 @@ int main()
 
 			break;
 		}
-		
+
+		if (retrivalTaskId % numOfFirstRobots == 1) {
+
+			for (auto& robot : oneTypeFirstRobotsVector) {
+				robot.isBusy = false;
+			}
+			//break;
+		}
 #endif	
 		
-		if (retrivalTaskId == iteration) { break; }
+		if (retrivalTaskId == iteration) { 
+			break; 
+		}
 		retrivalTaskId++;
 
 		
 		
 	}
 	
-	
+	workbook_close(oneTypeWorkbook);
 #endif
 
 
 	//two type
-#if 1
+#if 0
 	std::cout << "***********************Two Type*******************************";
 	retrivalTaskId = 0;
 	while ((!twoTypeQueueOfBinRetrival.empty()))
 	{
 		std::cout << "\nRetriving " << twoTypeQueueOfBinRetrival[0].locationName ;
 
-		//if (twoTypeQueueOfBinRetrival[0].zLocation == 0) {
-		//	twoTypeQueueOfBinRetrival.erase(twoTypeQueueOfBinRetrival.begin());
-		//	std::cout << "--------->This is deleted from queue!";
-		//	continue;
-		//}
-
-
 		twoTypeRetrivalTaskObject.reset();
 		twoTypeRetrivalTaskObject.id = retrivalTaskId;
 		twoTypeRetrivalTaskObject.binToRetrive = twoTypeBinsVector[twoTypeQueueOfBinRetrival[0].binId];
 
-		worksheet_write_string(twoTypeWorksheet, retrivalTaskId + 1, 0, twoTypeRetrivalTaskObject.binToRetrive.locationName.c_str(), NULL);
-		worksheet_write_number(twoTypeWorksheet, retrivalTaskId + 1, 1, twoTypeRetrivalTaskObject.binToRetrive.xLocation, NULL);
-		worksheet_write_number(twoTypeWorksheet, retrivalTaskId + 1, 2, twoTypeRetrivalTaskObject.binToRetrive.yLocation, NULL);
-		worksheet_write_number(twoTypeWorksheet, retrivalTaskId + 1, 3, twoTypeRetrivalTaskObject.binToRetrive.zLocation, NULL);
+		worksheet_write_string(twoTypeWorksheet, retrivalTaskId + 1, 0, twoTypeQueueOfBinRetrival[0].locationName.c_str(), NULL);
+		worksheet_write_number(twoTypeWorksheet, retrivalTaskId + 1, 1, twoTypeQueueOfBinRetrival[0].xLocation, NULL);
+		worksheet_write_number(twoTypeWorksheet, retrivalTaskId + 1, 2, twoTypeQueueOfBinRetrival[0].yLocation, NULL);
+		worksheet_write_number(twoTypeWorksheet, retrivalTaskId + 1, 3, twoTypeQueueOfBinRetrival[0].zLocation, NULL);
 
 		twoTypeRetrivalTaskObject.firstRobotSelection();
 		worksheet_write_number(twoTypeWorksheet, retrivalTaskId + 1, 4, twoTypeFirstRobotsVector[twoTypeRetrivalTaskObject.selectedfirstRobot.id].xLocation, NULL);
@@ -514,13 +503,14 @@ int main()
 
 
 	}
-
+	workbook_close(twoTypeWorkbook);
 #endif
 
 	
 	//Both type
 #if 1
-
+	numOfFirstRobots = numOfFirstRobots_ ;
+	numOfSecondRobots = numOfSecondRobots_;
 	std::cout << "***********************Both type*******************************" ;
 
 	retrivalTaskId = 0;
@@ -549,12 +539,12 @@ int main()
 
 		bothTypeRetrivalTaskObject.reset();
 		bothTypeRetrivalTaskObject.id = retrivalTaskId;
-		bothTypeRetrivalTaskObject.binToRetrive = bothTypeBinsVector[bothTypeOneRoundOfRetrivalTask[0].binId];
+		bothTypeRetrivalTaskObject.binToRetrive = bothTypeBinsVector[bothTypeOneRoundOfRetrivalTask[0].binId]; 
 
-		worksheet_write_string(bothTypeWorksheet, retrivalTaskId + 1, 0, bothTypeRetrivalTaskObject.binToRetrive.locationName.c_str(), NULL);
-		worksheet_write_number(bothTypeWorksheet, retrivalTaskId + 1, 1, bothTypeRetrivalTaskObject.binToRetrive.xLocation, NULL);
-		worksheet_write_number(bothTypeWorksheet, retrivalTaskId + 1, 2, bothTypeRetrivalTaskObject.binToRetrive.yLocation, NULL);
-		worksheet_write_number(bothTypeWorksheet, retrivalTaskId + 1, 3, bothTypeRetrivalTaskObject.binToRetrive.zLocation, NULL);
+		worksheet_write_string(bothTypeWorksheet, retrivalTaskId + 1, 0, bothTypeOneRoundOfRetrivalTask[0].locationName.c_str(), NULL);
+		worksheet_write_number(bothTypeWorksheet, retrivalTaskId + 1, 1, bothTypeOneRoundOfRetrivalTask[0].xLocation, NULL);
+		worksheet_write_number(bothTypeWorksheet, retrivalTaskId + 1, 2, bothTypeOneRoundOfRetrivalTask[0].yLocation, NULL);
+		worksheet_write_number(bothTypeWorksheet, retrivalTaskId + 1, 3, bothTypeOneRoundOfRetrivalTask[0].zLocation, NULL);
 
 		bool twoTypeCondition;
 		if (bothTypeOneRoundOfRetrivalTask.size() <= (numOfFirstRobots - numOfSecondRobots)) { twoTypeCondition = false; }
@@ -589,10 +579,44 @@ int main()
 		
 		worksheet_write_number(bothTypeWorksheet, retrivalTaskId + 1, 6, bothTypeRetrivalTaskObject.selectedsecondRobotsVector.size(), NULL);
 		worksheet_write_number(bothTypeWorksheet, retrivalTaskId + 1, 22, bothTypeCycleTime, NULL);
-		
+
+		worksheet_write_number(bothTypeWorksheet, retrivalTaskId + 1, 23, retrivalTaskId, NULL);
 		
 		bothTypeOneRoundOfRetrivalTask.erase(bothTypeOneRoundOfRetrivalTask.begin());
 		bothTypeFinishedRetriveTaskVector.push_back(bothTypeRetrivalTaskObject);
+
+
+		//shift chech
+#if 1				
+		bothTypeFirstRobotsVector[bothTypeRetrivalTaskObject.selectedfirstRobot.id].time =
+			bothTypeFirstRobotsVector[bothTypeRetrivalTaskObject.selectedfirstRobot.id].time + bothTypeCycleTime; // change robot time
+
+		bothTypeFirstRobotsVector[bothTypeRetrivalTaskObject.selectedfirstRobot.id].numOfTasks++;
+
+		if (bothTypeFirstRobotsVector[bothTypeRetrivalTaskObject.selectedfirstRobot.id].time >= (shiftHours * 60 * 60)) {
+			std::cout << "\n\n\n************************Shift Hours is Passed**************************\n\n\n";
+
+
+
+			for (auto robot : bothTypeFirstRobotsVector) {
+				std::cout << "Robot Id:" << robot.id << " Robot time: " << robot.time << " Robot Tasks: " << robot.numOfTasks << "\n";
+			}
+
+			std::cout << "total num of retrived Bin: " << bothTypeFinishedRetriveTaskVector.size()
+				<< " throughput/hour: " << bothTypeFinishedRetriveTaskVector.size() / shiftHours;
+
+			break;
+		}
+
+		if (retrivalTaskId % numOfFirstRobots == 1) {
+
+			for (auto& robot : bothTypeFirstRobotsVector) {
+				robot.isBusy = false;
+			}
+			//break;
+		}
+#endif
+
 
 
 		if (retrivalTaskId == iteration) {break;}
@@ -600,13 +624,12 @@ int main()
 
 
 	}
-
+	workbook_close(bothTypeWorkbook);
 #endif
 
 
-	workbook_close(oneTypeWorkbook);
-	workbook_close(twoTypeWorkbook);
-	workbook_close(bothTypeWorkbook);
+
+	
 
 
 	//error handeling
