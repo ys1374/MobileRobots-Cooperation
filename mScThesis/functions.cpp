@@ -63,8 +63,29 @@ void fillQueueOfBinRetrival(std::vector<Autostore::bin>& queueOfBinRetrival, con
     else {
         Autostore::VectorShuffler<Autostore::bin> shuffler;
         queueOfBinRetrival = shuffler.shuffleVector(binsVector_);
-        //std::cout << "Test line\n";
-        // Optionally, save the newly filled vector to file
+
+        //delete some retrival tasks in queue
+        int counter{ 0 };
+        while (1) {
+
+            if (queueOfBinRetrival[counter].zLocation == 0) {
+                queueOfBinRetrival.erase(queueOfBinRetrival.begin() + counter);
+                continue;
+            }
+
+            if ((queueOfBinRetrival[counter].xLocation == 0) && (queueOfBinRetrival[counter].yLocation == 0)) {
+                queueOfBinRetrival.erase(queueOfBinRetrival.begin() + counter);
+                continue;
+            }
+
+            counter++;
+            if (counter == queueOfBinRetrival.size()) {
+                break;
+            }
+
+
+        }
+
         saveVectorToFile(queueOfBinRetrival, filename_);
         std::cout << "Queue Filled regularly and saved to file." << std::endl;
     }

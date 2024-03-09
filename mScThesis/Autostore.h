@@ -258,6 +258,10 @@ namespace Autostore {
 #if 1
 		void reset() {
 
+
+			directionCost = 0;
+			numOfBinToRelocate = 0;
+
 			id = -1;
 
 			minCostRobotToBin = 1000000000 ;
@@ -279,7 +283,7 @@ namespace Autostore {
 
 				Cost_ = manhattanCostFirstRobot(robot);
 
-				if (Cost_ < minCostRobotToBin && robot.isBusy == false) {
+				if (Cost_ < minCostRobotToBin && firstRobotsVector_[robot.id].isBusy == false) {
 					
 					minCostRobotToBin = Cost_;
 					selectedfirstRobot = robot;			
@@ -940,9 +944,9 @@ namespace Autostore {
 			worksheet_write_number(oneTypeWorksheet_, id + 1, 13, twoTypeLoweringCycleTime_, NULL);
 
 			auto robotToBinCycleTime_{ 0.0 };
-			if (firstRobotToBinCycleTime_ > secondRobotToBinCycleTime_) { robotToBinCycleTime_ = firstRobotToBinCycleTime_; }
+			if (firstRobotToBinCycleTime_ > secondRobotToBinCycleTime_ + twoTypeElevatingCycleTime_) { robotToBinCycleTime_ = firstRobotToBinCycleTime_; }
 			else { robotToBinCycleTime_ = secondRobotToBinCycleTime_; }
-			worksheet_write_number(oneTypeWorksheet_, id + 1, 11, twoTypeLoweringCycleTime_, NULL);
+			worksheet_write_number(oneTypeWorksheet_, id + 1, 11, robotToBinCycleTime_, NULL);
 
 			auto totalCycleTime = 
 				
@@ -1198,7 +1202,8 @@ namespace Autostore {
 				firstRobotToBinCycleTime_ +
 				elevatingCycleTime_ +
 				oneTypeLoweringCycleTime_ +
-				binToPortCycleTime_ };
+				binToPortCycleTime_ +
+				portToBinCycleTime_ };
 
 
 			return totalCycleTime;
